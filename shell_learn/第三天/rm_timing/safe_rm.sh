@@ -3,7 +3,7 @@
 
 dir=`date +"%y_%m_%d"`
 #echo $dir
-dir="trash/$dir"
+dir="/home/lidecao/trash/$dir"
 #echo $dir
 
 if [[ ! -d $dir ]]; then
