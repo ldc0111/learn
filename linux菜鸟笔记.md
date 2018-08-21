@@ -214,6 +214,29 @@ man ls|nl -b a -w 8 -n rz|head -120|tail -20
 
 
 
-
 ### df
+
+### vim
+
+* 删除，粘贴，复制 dd yy pp
+
+* 光标移动 hjkl
+
+* 还原 u
+
+* 挂起 ctrl ＋ｚ
+
+* 行选择　ｖ
+
+* 多文件编辑　:n  下:N 上:files
+
+* 分屏　：sp 行　ｖｐ竖　文件名　
+
+* 搜索
+
+* 正则表达式　　替换：n1,n2s/old/new/g
+
+* 保存离开
+
+  ​
 
