@@ -1,3 +1,60 @@
+### 一
+
+#### 时间
+
+```shell
+dates=`date +"%Y_%m_%d_%H:%M:%S"`
+```
+
+总内存
+
+````shell
+zong=`free -m|awk 'NR == 2{print $2}'`
+##输出第二行总内存
+````
+
+用的内存
+
+````shell
+yong=`free -m|awk 'NR == 2{print $2}'`
+##输出用的内存
+````
+
+剩余内存
+
+````shell
+sheng=$[ $zong - $yong ]
+## 计算剩余的内存
+````
+
+占的百分比
+
+````shell
+zhan=`echo "scale=1;$sheng*100 / $zong"|bc`
+## 计算占有的百分比
+````
+
+动态百分比
+
+```shell
+dong=`echo "scale=1;0.3*$1+0.7*$zhan"|bc`
+## 计算动态百分比
+```
+
+
+
+
+
+![](/home/tesla/Pictures/2018_8_241.png)
+
+
+
+
+
+二
+
+
+
 时间 用户总数 （非系统用户） 近期活跃用户（3） 具有root权限的用户 当前在线用户\_登录ip\_TTY
 
 #### 时间
@@ -44,3 +101,4 @@ who|awk '{print $1 $5 $2}'|tr "(\|)" "_"
 ##将（） 替换成_
 ````
 
+![](/home/tesla/Pictures/201808242.png)
