@@ -312,3 +312,306 @@ tar -cfv - /home|tar -xvf -
 
 
 
+#### grep
+
+```shell
+grep -n 'the' regular_express.txt 
+8:I can't finish the test.
+12:the symbol '*' is represented as start.
+15:You are the best is mean you are the no. 1.
+16:The world <Happy> is the same with "glad".
+18:google is the best tools for search keyword.
+
+grep -n -v 'the' regular_express.txt 
+1:"Open Source" is a good mechanism to develop programs.
+2:apple is my favorite food.
+3:Football game is not use feet only.
+4:this dress doesn't fit me.
+5:However, this dress is about $ 3183 dollars.
+6:GNU is free air not free beer.
+7:Her hair is very beauty.
+9:Oh! The soup taste good.
+10:motorcycle is cheap than car.
+11:This window is clear.
+13:Oh!	My god!
+14:The gd software is a library for drafting programs.
+17:I like dog.
+19:goooooogle yes!
+20:go! go! Let's go.
+21:# I am VBird
+22:
+
+#不论大小写
+grep -in 'the' regular_express.txt 
+8:I can't finish the test.
+9:Oh! The soup taste good.
+12:the symbol '*' is represented as start.
+14:The gd software is a library for drafting programs.
+15:You are the best is mean you are the no. 1.
+16:The world <Happy> is the same with "glad".
+18:google is the best tools for search keyword.
+
+grep -n 't[ae]st' regular_express.txt 
+8:I can't finish the test.
+9:Oh! The soup taste good.
+
+grep -n 'oo' regular_express.txt 
+1:"Open Source" is a good mechanism to develop programs.
+2:apple is my favorite food.
+3:Football game is not use feet only.
+9:Oh! The soup taste good.
+18:google is the best tools for search keyword.
+19:goooooogle yes!
+
+
+#oo前面没有g
+grep -n '[^g]oo' regular_express.txt 
+2:apple is my favorite food.
+3:Football game is not use feet only.
+18:google is the best tools for search keyword.
+19:goooooogle yes!
+
+grep -n '[^a-z]oo' regular_express.txt 
+3:Football game is not use feet only.
+
+
+grep -n '[0-9]' regular_express.txt 
+5:However, this dress is about $ 3183 dollars.
+15:You are the best is mean you are the no. 1.
+
+grep -n '[^[:lower:]]oo' regular_express.txt 
+3:Football game is not use feet only.
+
+grep -n '[[:digit:]]' regular_express.txt 
+5:However, this dress is about $ 3183 dollars.
+15:You are the best is mean you are the no. 1.
+
+
+grep -n '^[a-z]' regular_express.txt 
+2:apple is my favorite food.
+4:this dress doesn't fit me.
+10:motorcycle is cheap than car.
+12:the symbol '*' is represented as start.
+18:google is the best tools for search keyword.
+19:goooooogle yes!
+20:go! go! Let's go.
+
+ grep -n '^the' regular_express.txt 
+12:the symbol '*' is represented as start.
+
+#不想要开头是英文字母的
+grep -n '^[^a-zA-Z]' regular_express.txt 
+1:"Open Source" is a good mechanism to develop programs.
+21:# I am VBird
+
+#行尾部是.
+grep -n '\.$' regular_express.txt 
+1:"Open Source" is a good mechanism to develop programs.
+2:apple is my favorite food.
+3:Football game is not use feet only.
+4:this dress doesn't fit me.
+10:motorcycle is cheap than car.
+11:This window is clear.
+12:the symbol '*' is represented as start.
+15:You are the best is mean you are the no. 1.
+16:The world <Happy> is the same with "glad".
+17:I like dog.
+18:google is the best tools for search keyword.
+20:go! go! Let's go.
+
+grep -n '^$' regular_express.txt 
+22:
+#不要空白行，和注释开头的行
+grep -v "^$" regulat_express.txt| grep -v "^#"
+#.代表一定有一个任意字符的意思
+ grep -n 'g..d' regular_express.txt 
+1:"Open Source" is a good mechanism to develop programs.
+9:Oh! The soup taste good.
+16:The world <Happy> is the same with "glad".
+
+# * 代表重复前面一个0到无穷多次的意思， 为组合形态
+ grep -n 'ooo*' regular_express.txt 
+1:"Open Source" is a good mechanism to develop programs.
+2:apple is my favorite food.
+3:Football game is not use feet only.
+9:Oh! The soup taste good.
+18:google is the best tools for search keyword.
+
+grep -n 'g.*g' regular_express.txt 
+1:"Open Source" is a     good mechanism to develop prog    rams.
+14:The    gd software is a library for drafting prog    rams.
+18:goog    le is the best tools for search keyword.
+19:goooooog   le yes!
+20:go! go! Let's g    o.
+
+
+grep -n 'o\{2,5\}g' regular_express.txt 
+18:google is the best tools for search keyword.
+19:goooooogle yes!
+
+grep -n 'go\{2,5\}g' regular_express.txt 
+18:google is the best tools for search keyword.
+
+grep -n 'go\{2,\}g' regular_express.txt 
+18:google is the best tools for search keyword.
+19:goooooogle yes!
+
+```
+
+
+
+### sed
+
+```shell
+nl /etc/passwd |sed '2,5d'
+     1	root:x:0:0:root:/root:/bin/bash
+     6	games:x:5:60:games:/usr/games:/usr/sbin/nologin
+     7	man:x:6:12:man:/var/cache/man:/usr/sbin/nologin
+##删除第二行
+nl /etc/passwd |sed '2d'
+     1	root:x:0:0:root:/root:/bin/bash
+     3	bin:x:2:2:bin:/bin:/usr/sbin/nologin
+
+##删除第三行到最后一行
+nl /etc/passwd |sed '3,$d'
+     1	root:x:0:0:root:/root:/bin/bash
+     2	daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+##在第一行后面加上一个dirnk tea
+nl /etc/passwd |sed '1adrink tea'
+     1	root:x:0:0:root:/root:/bin/bash
+drink tea
+     2	daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+
+nl /etc/passwd |sed '2,5c No 2-5 number'
+     1	root:x:0:0:root:/root:/bin/bash
+No 2-5 number
+     6	games:x:5:60:games:/usr/games:/usr/sbin/nologin
+     
+ nl /etc/passwd |sed -n '2,3p'
+     2	daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+     3	bin:x:2:2:bin:/bin:/usr/sbin/nologin
+
+
+ifconfig| grep 'inet[^0-9]'
+        inet 127.0.0.1  netmask 255.0.0.0
+        inet 192.168.1.156  netmask 255.255.255.0  broadcast 192.168.1.255
+
+ifconfig| grep 'inet[^0-9]'|sed 's/^.*inet //g'
+127.0.0.1  netmask 255.0.0.0
+192.168.1.156  netmask 255.255.255.0  broadcast 192.168.1.255
+
+ifconfig| grep 'inet[^0-9]'|sed 's/^.*inet //g'|sed 's/netmask.*//g'
+127.0.0.1  
+192.168.1.156  
+
+ifconfig| grep 'inet[^0-9]'|sed 's/^.*inet //g'|sed 's/netmask.*//g'|\
+> sed -n '2p'
+192.168.1.156  
+
+#将尾部的.$替换成！
+ sed -i 's/\.$/\!/g' regular_express.txt 
+
+
+```
+
+#### awk 
+
+NF 每一行的字段数，
+NR 目前awk 所处理的是第几行 数据
+
+FS 目前的分割字符，默认是空格键
+
+
+
+````shell
+last -n 5|awk '{print $1 "\t" $3}'
+tesla1	:1
+tesla	:0
+reboot	boot
+tesla	:0
+reboot	boot
+	
+wtmp	Tue
+
+last -n 5|awk '{print $1 "\t lines:" NR "\t columes: " NF}'
+tesla1	 lines:1	 columes: 10
+tesla	 lines:2	 columes: 10
+reboot	 lines:3	 columes: 10
+tesla	 lines:4	 columes: 10
+reboot	 lines:5	 columes: 11
+	 lines:6	 columes: 0
+wtmp	 lines:7	 columes: 7
+
+cat /etc/passwd|awk '{FS=":"} $3 < 10 {print $1 "\t" $3}'
+root:x:0:0:root:/root:/bin/bash	
+daemon	1
+bin	2
+sys	3
+sync	4
+games	5
+man	6
+
+````
+
+
+
+### diff  以行来比较
+
+````shell
+ cat /etc/passwd > passwd.old
+ 
+ cat /etc/passwd|\
+> sed -e '4d' -e '6c no six line' > passwd.new
+
+
+diff passwd.old  passwd.new 
+4d3
+< sys:x:3:3:sys:/dev:/usr/sbin/nologin
+6c5
+< games:x:5:60:games:/usr/games:/usr/sbin/nologin
+---
+> no six line
+
+````
+
+#### cmp以字节来比较
+
+````shell
+cmp passwd.old  passwd.new 
+passwd.old passwd.new 不同：第 120 字节，第 4 行
+
+````
+
+patch 更新wenjian
+
+````shell
+diff -Naur passwd.old passwd.new  > passwd.patch
+
+cat passwd.patch 
+--- passwd.old	2018-08-23 20:48:45.118994612 +0800
++++ passwd.new	2018-08-23 20:48:07.730739226 +0800
+@@ -1,9 +1,8 @@
+ root:x:0:0:root:/root:/bin/bash
+ daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+ bin:x:2:2:bin:/bin:/usr/sbin/nologin
+-sys:x:3:3:sys:/dev:/usr/sbin/nologin
+ sync:x:4:65534:sync:/bin:/bin/sync
+-games:x:5:60:games:/usr/games:/usr/sbin/nologin
++no six line
+ man:x:6:12:man:/var/cache/man:/usr/sbin/nologin
+ lp:x:7:7:lp:/var/spool/lpd:/usr/sbin/nologin
+ mail:x:8:8:mail:/var/mail:/usr/sbin/nologin
+
+ patch -p0 < passwd.patch 
+patching file passwd.old
+
+#恢复更新
+ patch -R -p0 < passwd.patch 
+patching file passwd.old
+
+````
+
+
+
+### tr打印
+
