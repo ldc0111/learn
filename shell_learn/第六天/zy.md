@@ -9,35 +9,43 @@ dates=`date +"%Y_%m_%d_%H:%M:%S"`
 总内存
 
 ````shell
-zong=`free -m|awk 'NR == 2{print $2}'`
+total=`free -m|awk 'NR == 2{print $2}'`
 ##输出第二行总内存
 ````
 
 用的内存
 
 ````shell
-yong=`free -m|awk 'NR == 2{print $2}'`
+used=`free -m|awk 'NR == 2{print $3}'`
 ##输出用的内存
 ````
+
+数组表示
+
+````shell
+arr=(`free -m|awk 'NR == 2{print $2 " " $3}'`)
+````
+
+
 
 剩余内存
 
 ````shell
-sheng=$[ $zong - $yong ]
+remainder=$[ $total - $used ]
 ## 计算剩余的内存
 ````
 
 占的百分比
 
 ````shell
-zhan=`echo "scale=1;$sheng*100 / $zong"|bc`
+occupancy=`echo "scale=1;$remainder*100 / $total"|bc`
 ## 计算占有的百分比
 ````
 
 动态百分比
 
 ```shell
-dong=`echo "scale=1;0.3*$1+0.7*$zhan"|bc`
+dynamic=`echo "scale=1;0.3*$1+0.7*$occupancy"|bc`
 ## 计算动态百分比
 ```
 

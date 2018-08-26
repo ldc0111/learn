@@ -615,3 +615,9 @@ patching file passwd.old
 
 ### tr打印
 
+
+
+
+
+### 总之grep是对单个字符进行处理的神器
+
