@@ -28,12 +28,12 @@ disp_sys_rate=`expr "scale=3; $sys_Rate / 1"|bc`
 datess=`date +%Y-%m-%d__%H:%M:%S`
 temperatur=`cat /sys/class/thermal/thermal_zone0/temp`
 
-uptime |tr "," " "|awk -v rate=$disp_sys_rate -v dates=${datess} -v temperature=${temperatur} '
+cat /proc/loadavg |awk -v rate=$disp_sys_rate -v dates=${datess} -v temperature=${temperatur} '
     BEGIN{temp="" ; ts[0]="normal"; ts[1]="note"; ts[2]="waring"; m1=""; m5=""; m15=""}
-    {m1=$8; m5=$9; m15=$10}
+    {m1=$1; m5=$2; m15=$3}
     {temp=(temperature > 50000) + (temperature > 70000)}
     {temperature /= 1000}
-    END{printf "%s %s %s %s %.2f %.2f°C %s",dates,m1,m5,m15,rate,temperature,ts[temp]}'
+    END{printf "%s %s %s %s %.2f %.2f°C %s\n",dates,m1,m5,m15,rate,temperature,ts[temp]}'
 
 
 

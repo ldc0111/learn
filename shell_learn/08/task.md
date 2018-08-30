@@ -44,15 +44,27 @@ uptime|awk '{print $8 " "$9 " "$10}'
 
 
 ````
-home bash 100
+磁盘总量　磁盘已用总量
+df -m|grep '^/dev'|awk 'BEGIN{total="";used="";} {total += $2; used += $3} END{printf "%s %s\n",total,used}'
+470793 12754
 
-sudo
-
-
- last tesla4|wc -l
-5
-last tesla4|sed -n '2p'
-tesla4   pts/1                         Sun Aug 26 12:40 - 12:41  (00:01)
-s
 ````
 
+````
+内存总量　内存已用量
+cat /proc/meminfo |head -n3
+MemTotal:        8052580 kB
+MemFree:         3671884 kB
+MemAvailable:    5357268 kB
+
+````
+
+温度
+
+````
+cat /sys/class/thermal/thermal_zone0/temp 
+41000
+
+````
+
+''
