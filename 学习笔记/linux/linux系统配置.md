@@ -1,9 +1,11 @@
+## ｄｅｅｐｉｎ配置操作
+
 ````shell
-sudo apt-get update
+sudo apt-get update　
 sudo apt-get upgrate
 sudo apt-get upinstall
 sudo apt-get install git
-sudo apt-get install dpkg//安装包安装
+sudo apt-get install dpkg//安装包安装程序
 //sudo apt-get install tar//解压缩
 sudo apt-get ifcongig
 wget -qO- https://raw.github.com/ma6174/vim/master/setup.sh | sh -x//配置vim
