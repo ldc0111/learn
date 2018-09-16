@@ -4,9 +4,15 @@
 
 ###　文件类型
 
+1. l
+2. d
+3. pipe
+4. link(软链接　硬链接)
+5. block
+6. c
+7. socket
 
-
-
+文件存储：
 
 
 
@@ -40,10 +46,18 @@
 ｓｈｅｌｌ
 
 ````
-/etc/shell　　　可用ｓｈｅｌｌ列表
+/etc/shells　　　可用ｓｈｅｌｌ列表
 /etc/inputrc　　ｒｅａｄｌｉｎｅ控件设定
 /etc/profile　　用户首选项
 /etc/bashrc　　ｂａｓｈ配置文件
+
+bash
+profile
+bash.bashrc
+bash.bash.logout
+bash.profile
+bash.logout
+inputrc
 ````
 
 系统环境
@@ -73,10 +87,13 @@
 
 ```
 apt-get install *
-apt-get remove *
+apt-get --purge remove *
 apt-get update *
 apt-get upgrade *
-apt-get search *
+apt-cache search a|grep
+
+apt-get automove
+apt-get install -f /修复依赖关系
 
 ```
 
@@ -120,29 +137,29 @@ apt-get search *
 
 11. whoami
 
-12. uname
+12. logname
 
-13. cal
+13. uname      -a
 
-14. cd
+14. cal
 
-15. mkdir
+15. cd
 
-16. rmdir
+16. mkdir
 
-17. pwd
+17. rmdir
 
-18. ls
+18. pwd
 
-19. rm
+19. ls
 
-20. basename
+20. rm
 
-21. cp
+21. basename  |dirname
 
-22. mv
+22. cp
 
-23. dirmane
+23. mv
 
 24. cat
 
@@ -156,74 +173,80 @@ apt-get search *
 
 29. more
 
-30. haed
+30. head
 
-31. od
+31. touch  修改文件时间
 
-32. touch
+32. chattr
 
-33. chattr
+33. lsattr
 
-34. lsattr
+34. which
 
-35. which
+35. locate　数据库
 
-36. locate
+36. whereis　数据库
 
-37. whereis
+37. updatedb
 
 38. find
 
-39. cut
+39. stat
 
-40. sort
+40. cut
 
-41. uniq
+41. sort
 
-42. split
+42. uniq
 
-43. tr
+43. split
 
-44. grep
+44. tr
 
-45. wc
+45. grep
 
-46. tee
+46. wc
 
-47. xargs
+47. tee
 
-48. su
+48. xargs
 
-49. passwd
+49. su
 
-50. chsh
+50. passwd
 
-51. useradd
+51. chsh
 
-52. id
+52. useradd
 
-53. sudo
+53. id
 
-54. gpasswd
+54. sudo
 
-55. usermod
+55. gpasswd
 
-56. userdel
+56. usermod
 
-57. free
+57. userdel
 
-58. dstat
+58. free
 
-59. pstree
+59. dstat
 
-60. kill
+60. htop
 
-61. top
+61. nmon
 
-62. ps
+62. pstree
 
-63. pgrep
+63. kill
 
-64. pkill
+64. top
+
+65. ps
+
+66. pgrep
+
+67. pkill
 
     
