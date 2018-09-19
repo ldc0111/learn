@@ -101,7 +101,13 @@ apt-get install -f /修复依赖关系
 
 ###　环境变量
 
-ＰＴＴＨ
+````shell
+env
+````
+
+
+
+ＰＡＴＨ
 
 ＨＯＭＥ
 
@@ -249,4 +255,22 @@ apt-get install -f /修复依赖关系
 
 67. pkill
 
+68. mount
+
+69. umount
+
+70. nmon
+
+71. netstat
+
+72. awk
+
+73. sed
+
+74. ping
+
     
+
+###　正则表达式
+
+​    
