@@ -53,6 +53,23 @@ https://wenku.baidu.com/view/9c92849b998fcc22bdd10d24.html
 
 ## 任务思路
 
+####　颜色
+
+````
+普通文件正常
+文件夹　黄色
+＃define BROWN "\e[0;33m"
+#define NONE "\e[0m"
+__LINE__
+printf(BROWN""NONE,)
+````
+
+
+
+
+
+
+
 
 
 
