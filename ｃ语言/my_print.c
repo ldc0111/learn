@@ -10,43 +10,61 @@
 #include <stdlib.h>
 #include <inttypes.h>
 #include <math.h>
+
+int print_int(int x,int flag){
+    if(x == 0){
+        flag && putchar('0');
+        return !!(flag);
+    }
+    int temp = x,ret = 0,digit = 0;
+    x = 0;
+    if (temp < 0) temp = -temp,putchar('-');
+    while(temp){
+        x = x * 10 + temp % 10;
+        temp /= 10;
+        digit++;
+    }
+    while(digit--){
+        putchar(x % 10 + '0');
+        x /= 10;
+        ret++;
+    }
+    return ret;
+}
+
+
+
 int my_printf1(const char *frm, ...){
     int cnt = 0;
     va_list arg;
     va_start(arg, frm);
-    //printf("%c",frm[0]);
 
-    for (int i = 0, cnt = 0; frm[i]; i++, cnt++) {
+    for (int i = 0; frm[i]; i++, cnt++) {
         switch (frm[i]) {
 
             case '%' : {
                 i++;
                 
-                switch (frm[i]) {
-                    
+                switch (frm[i]) {   
                     case 'd' : {
-                        long long  temp = va_arg(arg, int), x = 0;
-                        //printf("%d\n", temp);
+                        int temp = va_arg(arg,int);
+                        int p1 = temp /10, p2 =temp % 10;
                         if(temp < 0){
-                            putchar('-');
-                            temp = -temp;
+                            p1 = -p1,p2 = -p2;
+                            putchar('-'); cnt++;
                         }
-                        for(int  j = pow(10,(int)floor(log10(temp))); j > 0;j /= 10){
-                           // printf("temp = %d j = %d  %%%d\n", temp, j, temp / j);
-                            putchar(temp / j+'0');
-                            temp %= j;
-                        }
+                        cnt += print_int(p1,0);
+                        cnt += print_int(p2,1);
                     } break;
                 default: 
                      fprintf(stderr, "error: unkonw %%%c\n", frm[i]);
                      exit(1);
                 }
-            } break;
-            
-            default:
-                putchar(frm[i]);
+            } break;     
+        default:
+            putchar(frm[i]);
+            cnt++;
         }
-
     }
     //va_end(arg);
     return cnt;
@@ -56,9 +74,11 @@ int my_printf1(const char *frm, ...){
 
 int main(){
     int n = 123;
-    //my_printf1("hello");
+    //printf("%ld\n",pow(10,(long long)floor(log10(0))));
+    my_printf1("hello\n");
     my_printf1("n = %d\n", n);
     my_printf1("n = %d\n", 12000);
+    my_printf1("n = %d\n",0);
     my_printf1("n = %d\n", -567);
     my_printf1("n = %d\n", INT32_MIN);//特殊判断，或者换用更大的数据类型
     my_printf1("n = %d\n", INT32_MAX);
