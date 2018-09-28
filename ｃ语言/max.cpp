@@ -13,7 +13,14 @@ using namespace std;
     printf("%s = %d\n", #func, func); \
 }
 
-#define MAX(a,b) ((a) > (b) ? (a) : (b))
+//#define MAX(a,b) ((a) > (b) ? (a) : (b))
+
+#define MAX(a,b) ({\
+        __typeof(a) aa = (a);\
+        __typeof(b) bb = (b);\
+        aa > bb ? aa : bb;\
+})
+
 
 int main(){
     //P(MAX(2,3));
@@ -23,7 +30,7 @@ int main(){
     int a = 7;
     P(MAX(a++,6));
     printf("a = %d\n", a);
-
-
+    ( {int a = 3;});
+    printf("a = %d\n",a);
     return 0;
 }
