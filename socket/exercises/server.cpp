@@ -28,9 +28,6 @@ int  listenn(int *fd_server, struct sockaddr_in *addr_server,int listen_port){
 
 }
 
-void dirname(){
-
-}
 
 int recvfile(int fd_server,struct sockaddr_in addr_client, socklen_t len_addr_client){
     int fd_client;
@@ -40,7 +37,7 @@ int recvfile(int fd_server,struct sockaddr_in addr_client, socklen_t len_addr_cl
     }
 
     if (!fork()) {
-        char buffer[max_size] = "./";
+        char buffer[max_size] = PATH;
         strcat(buffer,inet_ntoa(addr_client.sin_addr));
         mkdir(buffer,0775);
         int size = 0;
@@ -57,14 +54,14 @@ int recvfile(int fd_server,struct sockaddr_in addr_client, socklen_t len_addr_cl
         FILE *fc = fopen(ic,"w");
         FILE *fd = fopen(id,"w");
         FILE *fm = fopen(im,"w");
-        //printf("3");
+
         while(1){
             memset(buffer,0,sizeof(buffer));
             size = recv(fd_client,buffer, max_size,0);
             if(size <= 0) break;
             buffer[size] = '\0';
-            printf("%c ",buffer[0]);
-            printf("%s", buffer+1);
+            //printf("%c ",buffer[0]);
+            //printf("%s", buffer+1);
             if (buffer[0] == 'c') {
                 fwrite(buffer+1, strlen(buffer) - 1, sizeof(buffer[0]), fc);
             } else if (buffer[0] == 'd') {
@@ -78,24 +75,28 @@ int recvfile(int fd_server,struct sockaddr_in addr_client, socklen_t len_addr_cl
 
     }
 }
+void init(struct Node_server *server, char *argv[]){
+    server->listen_port = atoi(argv[1]);
+    server->addr_server;
+    server->len_addr_client = sizeof(struct sockaddr_in);
+    if (listenn(&(server->fd_server), &(server->addr_server),server->listen_port) < 0){
+        printf("listenn is error!");
+        return ;
+    }
+}
+
+
 
 int main(int argc, char *argv[]){
-    int fd_server;
-    int listen_port = atoi(argv[1]);
-    struct sockaddr_in addr_server;
-
-    if (listenn(&fd_server, &addr_server,listen_port) < 0){
-        printf("listenn is error!");
-        return -1;
-    }
+    struct Node_server server;
     struct sockaddr_in addr_client;
-    socklen_t len_addr_client = sizeof(addr_client);
-    int fd_client;
+
+    init(&server, argv);
 
     while(1){
-        recvfile(fd_server, addr_client, len_addr_client);
+        recvfile(server.fd_server, addr_client, server.len_addr_client);
     }
-    close(fd_server);
+    close(server.fd_server);
     return 0;
 }
 

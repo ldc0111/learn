@@ -31,9 +31,19 @@
 #define BACKLOG 10
 #define PATH "./"
 
-struct Node{
-    int co;
+struct Node_client{
+    int fd_client;
+    int port;
+    char *host;
+    struct sockaddr_in dest_addr;
 };
+struct Node_server{
+    int fd_server;
+    int listen_port;
+    socklen_t len_addr_client;
+    struct sockaddr_in addr_server;
+};
+
 
 #define _HEAD_H
 #endif
