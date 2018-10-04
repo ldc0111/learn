@@ -54,3 +54,9 @@ ssh -T git@github.com
 https://blog.csdn.net/qq_36589706/article/details/80573008
 ```
 
+###　ｍａｎ手册不全
+
+````
+apt-get install manpages-de  manpages-de-dev  manpages-dev glibc-doc manpages-posix-dev manpages-posix
+````
+

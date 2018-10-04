@@ -51,9 +51,9 @@ int recvfile(int fd_server,struct sockaddr_in addr_client, socklen_t len_addr_cl
         char im[max_size];
         strncpy(im,buffer,strlen(buffer));
         strcat(im,"/mem.log");
-        FILE *fc = fopen(ic,"w");
-        FILE *fd = fopen(id,"w");
-        FILE *fm = fopen(im,"w");
+        FILE *fc = fopen(ic,"a+");
+        FILE *fd = fopen(id,"a+");
+        FILE *fm = fopen(im,"a+");
 
         while(1){
             memset(buffer,0,sizeof(buffer));

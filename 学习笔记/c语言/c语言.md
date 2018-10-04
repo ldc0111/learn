@@ -145,3 +145,85 @@ va_end结束整个获取可变参数列表
 
 
 
+#### 复杂结构与指针
+
+结构体
+
+对齐方式
+
+会找到结构体中占用内存最大的那个作为对齐方式，选择最大类型的倍数位内存的字节数
+
+每个类型选用的开始地址必须是本类型的倍数（方便cpu取字节，cpu一次取一个整型，这样不会跨字节取数据，节约时间）
+
+```c
+struct node1{
+    char a;
+    char b;
+    int c;
+};
+struct node2{
+    char a;
+    int c;
+    char b;
+};
+```
+
+````c
+typedef struct node{
+    char name[17];
+    int age;
+    char gender;
+    float height;
+}node;
+````
+
+````c
+struct node{
+    short a;
+    char a;
+    int c;
+    double e;
+}
+0x00 0x02 0x04 0x08 
+````
+
+
+
+
+
+共用体
+
+union
+
+
+
+
+
+#### 指针
+
+*解析运算符
+
+scanf（“%d”，&n）；
+
+为什么取地址，要给n赋值，必须取地址
+
+
+
+传出参数，传入参数
+
+-> 间接引用
+
+a[1].x
+
+(p+1)->x
+
+​    (*(p+1)).x
+
+p[1].x
+
+​    (a + 1)->x
+
+​    *(a + 1).x
+
+(a + 1)->x
+

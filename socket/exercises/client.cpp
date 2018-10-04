@@ -59,6 +59,9 @@ int init(struct Node_client *client,char *argv[]){
 int main(int argc,char *argv[]){
     struct Node_client client;
     init(&client,argv);
-    forkk(client.fd_client);
+    while(1){
+        forkk(client.fd_client);
+        sleep(5);
+    }
     return 0;
 }
