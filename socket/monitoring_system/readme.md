@@ -225,11 +225,11 @@ Client端服务跟Master要求一致
 
 使用命令systemctl enable pihealtd_zq.service将Master和Client端设置为开机自启
 
+![master](/home/tesla/Downloads/master1.png)
 
 
 
-
-
+![client](/home/tesla/Downloads/clent1.png)
 
 
 
