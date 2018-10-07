@@ -6,41 +6,42 @@
  ************************************************************************/
 
 #ifndef _TEST_H
+#define _TEST_H
+#include <stdlib.h>
 
 
-int total = 0,expect_cnt = 0;
+struct TestFuncDate{
+    int total,expect_cnt;
+};
+
 
 #define EXPECT(func,value) ({\
-    int te;\
-    te = ((func) == value) ? 1:0;\
-    *(expectcnt) += te;\
-    printf("%s == %d %s\n",#func,value,(te == 1 ? "True" : "False"));\
-    (*top)++;\
+    int temp;\
+    printf("%s == %s %s\n", #func, #value, ((temp = (func == value)) ? "True" : "False"));\
+    __date->total++;\
+    __date->expect_cnt += temp;\
 })
-#define max_size 1000
 
-typedef void (*funcp)(int *,int *);
+typedef void (*test_func_t)(struct TestFuncDate * );
+typedef struct FuncDate{
+    const char *a_str,*b_str;
+    test_func_t func;
+    struct FuncDate *next;
+}FuncDate;
 
-struct Node{
-//    funcp *p[max_size];
-    int t;
-}node;
-int num = 0;
+void getFuncDate(const char *a,const char *b,test_func_t func);
 
-#define test int * p = &(++num),
+#define TEST(a, b) \
+   void a##_haizei_##b(struct TestFuncDate * );\
+    __attribute__((constructor))\
+    void ADDFUNC ##a##_haizei_##b(){\
+        getFuncDate(#a, #b,a##_haizei_##b);\
+    }\
+    void  a##_haizei_##b(struct TestFuncDate *__date)
 
-#define TEST(test,functype) void  functype(int *top,int *expectcnt,test)
+int RUN_ALL_TEST();
 
 
-#define RUN_ALL_TEST() (\
-    printf("[test,is_prime_func]\n"),\
-    is_prime_func(&total,&expect_cnt),\
-    printf("[ \033[1;32mPASS\033[0m ] total: %d, expect_cnt : %d\n",total,expect_cnt),\
-    printf("%d\n",num),\
-    1\
-)
-
-#define _TEST_H
 #endif
 
 

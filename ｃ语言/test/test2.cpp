@@ -26,13 +26,13 @@ TEST(test, is_prime_func) {
     EXPECT(is_prime(15), 0);
     EXPECT(is_prime(9973), 1);
 }
-
+/*
 TEST(test, add_func) {
 
     EXPECT(add(1, 2), 3);
     EXPECT(add(3, 4), 7);
     EXPECT(add(2, 2), 4);
-}
+}*/
 /*
 void func(int *p = &(++num),int haa){
     printf("%d",*p);
