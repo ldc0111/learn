@@ -227,3 +227,8 @@ p[1].x
 
 (a + 1)->x
 
+
+
+#### 宏的妙用
+
+https://blog.csdn.net/yang_yulei/article/details/31496091
