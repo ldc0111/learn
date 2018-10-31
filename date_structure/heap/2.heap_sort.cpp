@@ -19,7 +19,7 @@
 void heap_sort(int *arr, int n){
     int *p = arr - 1;
     for(int i = 2; i <= n; i++){
-        int ind = i;
+        int ind = i;//添加一个往上调
         while(ind > 1){
             if(p[ind] <= p[ind >> 1]) break;
             swap(p[ind], p[ind >> 1]);
