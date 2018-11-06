@@ -9,21 +9,34 @@
 #include <time.h>
 #include <string.h>
 using namespace std;
-
-void raddix_sort(int * num, int n){
+/*
+void radix_sort(int * num, int n){
     int *temp = (int *)malloc(sizeof(int) * n);
     int cnt[65536] = {0};
     for (int i = 0; i < n; i++) cnt[num[i] & 0xffff]++;
     for (int i = 1; i < 65536; i++) cnt[i] += cnt[i - 1];
-    cnt[0] = 0;
     for (int i = 65536; i >= 1; i--) cnt[i] = cnt[i - 1];
+    cnt[0] = 0;
     for (int i = 0; i < n; i++) temp[cnt[(num[i] & 0xffff)]++] = num[i];
-    memset(cnt, 0,sizeof(cnt));
+    memset(cnt, 0, sizeof(cnt));
     for (int i = 0; i < n; i++) cnt[(temp[i] >> 16) & 0xffff]++;
     for (int i = 1; i < 65536; i++) cnt[i] += cnt[i - 1];
-    cnt[0] = 0;
     for(int i = 65536; i >= 1; i--) cnt[i] = cnt[i - 1];
+    cnt[0] = 0;
     for(int i = 0; i < n; i++) num[cnt[(temp[i] >> 16) & 0xffff]++] = temp[i];
+    return ;
+}*/
+
+void radix_sort(int *num, int n){
+    int *temp = (int *)malloc(sizeof(int) * n);
+    int cnt[65537] = {0};
+    for(int i = 0; i < n; i++) cnt[(num[i] & 0xffff) + 1]++;
+    for(int i = 1; i < 65536; i++) cnt[i] += cnt[i - 1];//每个类型的后缀存放的是前面ｎ种类型的总和，也就是种类型后缀的存放的开始位置
+    for(int i = 0; i < n; i++) temp[cnt[(num[i] & 0xffff)]++] = num[i];
+    memset(cnt,0,sizeof(cnt));
+    for(int i = 0; i < n; i++) cnt[((temp[i] >> 16) & 0xffff) + 1]++;
+    for(int i = 1; i < 65536; i++) cnt[i] += cnt[i - 1];
+    for(int i = 0; i < n; i++) num[cnt[(temp[i] >> 16) & 0xffff]++ ] = temp[i];
     return ;
 }
 
@@ -35,7 +48,7 @@ int main(){
     for(int i = 0; i <  n; i++){
         a[i] = rand() % (n + 1);
     }
-    raddix_sort(a,n);
+    radix_sort(a,n);
     for(int i = 0; i < n; i++){
         printf("%d ", a[i]);
     }

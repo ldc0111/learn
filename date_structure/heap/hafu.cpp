@@ -36,30 +36,30 @@ int swap_node(Node **p,Node **q){
     //printf("[%d %d %d]\n ",temp->freq,(*p)->freq,(*q)->freq);
     return 1;
 }
-void out(Node **arr){
+void out(Node **arr,int n){
     printf("[");
-    for(int i = 0; i < 6; i++){
+    for(int i = 0; i < n; i++){
         printf("%d ",arr[i]->freq);
     }
     printf("]\n");
 }
 
 Node * build_haffman(Node **arr,int n){
-    Node INIT_NODE = {0,1354354,NULL,NULL};
     for(int i = 0; i < n - 1; i++){
-        for(int j = 0; j < n - i; j++){
+        for(int j = 0; j < n - i - 1; j++){
             if(arr[j]->freq < arr[n - i - 1]->freq){
                 swap_node(arr + j, arr + n - i - 1);
-            }else if(arr[j]->freq < arr[n - i - 2]->freq){
+            }
+            if(arr[j]->freq < arr[n - i - 2]->freq){
                 swap_node(arr + j, arr + n - i - 2);
             }
         }
+        printf("zui:%d ci:%d %d \n",arr[n - i - 1]->freq,arr[n - i - 2]->freq,n - i- 1);
         Node *temp = getNewNode(0,arr[n - i - 1]->freq + arr[n - i - 2]->freq);
-        //printf("temp : %d first : %d second : %d",temp->freq,first->freq,second->freq);
         temp->lchild = arr[n - i - 1];
         temp->rchild = arr[n - i - 2];
         arr[n - i - 2] = temp;
-        out(arr);
+        out(arr,n - i - 1);
     }
     return arr[0];
 }
@@ -79,8 +79,14 @@ void extract_code(Node *root,char (*code)[20],int k,char *buff){
 void preorter(Node * root){
     if(root == NULL) return ;
     printf("%d ", root->freq);
-    preorter(root->lchild);
-    preorter(root->rchild);
+    if(root->lchild != NULL || root->rchild){
+        printf("(");
+        preorter(root->lchild);
+        printf(",");
+        preorter(root->rchild);
+        printf(")");
+
+    }
 }
 
 
@@ -97,7 +103,9 @@ int main(){
     }
 
     root = build_haffman(arr,n);
-    //preorter(root);
+    printf("\n");
+    preorter(root);
+    printf("\n");
     //printf("%d", root->freq);
     char code[256][20] = {0}, buff[20];
     extract_code(root,code,0, buff);

@@ -31,7 +31,7 @@ int main(){
     int a;
     for(int i = 0; i < 1000000; i++){
         sdf(a);
-        //printf("1");
+        printf("1");
         printf("%d\n", a);
     }
 
