@@ -23,7 +23,7 @@ typedef struct Queue{
 
 Queue *init(int length){
     Queue *q = (Queue *)malloc(sizeof(Queue));
-    q->data = (struct TreeNode **)malloc(sizeof(struct TreeNode*));
+    q->data = (struct TreeNode **)calloc(sizeof(struct TreeNode*),length);
     q->head = 0;
     q->tail = -1;
     q->count = 0;
@@ -43,35 +43,28 @@ struct TreeNode* top(Queue *q){
     return q->data[q->head];
 }
 
-
 void  pop(Queue *q){
     q->head = (q->head + 1) % q->length;
-    q->count -= 1;
-    
+    q->count -= 1;    
 }
 
 void clear(Queue *q){
     free(q->data);
     free(q);
 }
+
 int empty(Queue *q){
     return q->count <= 0;
 }
 
 void output(Queue * q){
-    printf("Queue = [ %d %d     ",q->head,q->tail); 
+    printf("Queue = [ head %d tail %d: ",q->head,q->tail); 
     for(int i = q->head; i <= q->tail; i++){
         printf("%d ",q->data[i]->val);
     }
     printf("]\n");
 }
-
-
-///////////////////////////////////
-
-
-
-
+//////////////////////////////////////////////////////////////
 /** Encodes a tree to a single string. */
 int preorder(struct TreeNode * root){
     if(root == NULL ) return 0;
@@ -85,14 +78,14 @@ int preorder(struct TreeNode * root){
     }
     return 0;
 }
-
 int getint(char **arr){
-    int temp  = 0;
+    int temp  = 0,flag = 1;
+    if((**arr) == '-') flag = -1,(*arr)++;
     while((**arr) >= '0' && (**arr) <= '9') {
         temp = temp * 10 + **arr - '0';
         (*arr)++;
     }
-    return temp;
+    return temp * flag;
 }
 
 struct TreeNode * getNewnode(int value){
@@ -101,59 +94,120 @@ struct TreeNode * getNewnode(int value){
     node->left = node->right = NULL;
     return node;
 }
+/////////////////////////////////////////////////////////////////////
+int dep(struct TreeNode *root){
+    if(root == NULL) return 0;
+    int l = dep(root->left),r = dep(root->right);
+    return (l > r ? l: r) +1;
+}
+void cha(char *ch, int val){
+    int i = 0,j = 0,flag = 1;
+    int a[20];
+    if(val < 0) val = -val,flag = -1;
+    while(val){
+        a[i++] = val % 10 + '0';
+        val /= 10;
+    }
+    a[i] = 0;
+    if(flag == -1){
+        ch[j++] = '-';
+    }
+    while(i--){
+        ch[j++] = a[i];
+    }
+    ch[j] = 0;
+}
+/** Encodes a tree to a single string. */
+char* serialize(struct TreeNode* root) {
+    if(root == NULL) return NULL;
+    int de = dep(root) - 1,post = 1,temp = 0;
+    char *a = (char *)calloc(sizeof(char),maxn);
+    char ch[20];
+    Queue *q = init(100); 
+    push(q,root);
+    cha(ch,root->val);
+    strcat(a,ch);
+    ch[0] = ',';
+    while(!empty(q)){//层
+        temp = 0;
+        while(post--){//个
+            output(q);
+            printf("top : %d %d %d de %d\n",top(q)->val, top(q)->left == NULL, top(q)->right == NULL,de);
+            if(top(q)->left == NULL && de > 0){
+                strcat(a, ",null");
+            }else if(top(q)->left != NULL){
+                cha(ch+1,top(q)->left->val);
+                strcat(a,ch);
+                push(q,top(q)->left);
+                temp++;
+            }
+            if(top(q)->right == NULL && de > 0){
+                strcat(a, ",null");
+            }else if(top(q)->right != NULL){
+                cha(ch + 1,top(q)->right->val);
+                strcat(a,ch);
+                push(q,top(q)->right);
+                temp++;
+            }
+            pop(q);
+        }
+        de--;
+        post = temp;
+    }
+    return a;
+}
 
 /** Decodes your encoded data to tree. */
-struct TreeNode* deserialize(char * data) {
-    data++;//[
+struct TreeNode* deserialize(char* data) {
+    if(data == NULL) return NULL;
+    //printf("%s\n",data);
     int temp;
     struct TreeNode * root = NULL;
-    if(*data >= '0' && *data <= '9'){
+    if(*data != 'n'){
         temp = getint(&data);
         data++;
     }else {
         return NULL;
     }
     root = getNewnode(temp);
-
     Queue *q = init(maxn);
     push(q, root);
     while(!empty(q) && strlen(data) > 0){
         struct TreeNode *cur = top(q);
         pop(q);
-        //printf("%d ",cur->val);
-        printf(" ||%s|| ", data, strlen(data));
-        if(*data >= '0' && *data <= '9'){
+        if(*data != 'n' && strlen(data) > 0){
             temp = getint(&data);
             cur->left = getNewnode(temp);
             push(q,cur->left);
             data++;
         }else {
-            //printf(" ||%s|| ", data);
             cur->left = NULL;
             data+= 5;//"null,"
         }
 
-        if(*data >= '0' && *data <= '9'){
+        if(*data != 'n' && strlen(data) > 0){
             temp = getint(&data);
             cur->right = getNewnode(temp);
             push(q,cur->right);
             data++;
         }else {
-            //printf(" ??%s?? ", data);
             cur->right = NULL;
             data+= 5;//"null,"
         }
-        //printf("|%d ",cur->val);
     }
-    preorder(root);
+    //preorder(root);
     return root;
 }
 
+
+
+
 int main(){
-    char str[] = "[1,2,3,null,null,4,5]";
-    deserialize(str);
-
-
+    char str[80] = "1,2,3,5,null,null,4";
+    struct TreeNode * root = deserialize(str);
+    preorder(root);
+    printf("\n");
+    printf("%s",serialize(root));
     return 0;
 }
 
