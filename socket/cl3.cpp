@@ -34,7 +34,7 @@ int main(int av,char *argv[]){
     int port = atoi(argv[2]);
     char *host = argv[1];
     FILE *fp = fopen("./cl3.cpp","r");
-
+    //创建套接字
     if ((fd_client = socket(AF_INET,SOCK_STREAM,0)) < 0){
         perror("socket");
         return -1;
@@ -42,6 +42,7 @@ int main(int av,char *argv[]){
     dest_addr.sin_family = AF_INET;
     dest_addr.sin_port = htons(port);
     dest_addr.sin_addr.s_addr = inet_addr(host);
+//链接
     if (connect(fd_client, (struct sockaddr *)&dest_addr,sizeof(dest_addr)) < 0){
         perror("connect");
         return -1;

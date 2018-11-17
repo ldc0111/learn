@@ -46,15 +46,17 @@ int main(int argc,char *argv[]){
     addr_server.sin_family = AF_INET;
     addr_server.sin_port = htons(listen_port);
     addr_server.sin_addr.s_addr = htonl(INADDR_ANY);
-
+    //创建套接字
     if((fd_server = socket(AF_INET,SOCK_STREAM, 0)) < 0){
         perror("socket:");
         return -1;
     }
+    //绑定ｉｐ，和端口
     if(bind(fd_server, (struct sockaddr *)&addr_server,sizeof(addr_server)) < 0){
         perror("bind:");
         return -1;
     }
+    //监听,主动转化为被动
     if(listen(fd_server, BACKLOG) < 0){
         perror("listen:");
         return -1;

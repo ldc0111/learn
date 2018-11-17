@@ -26,7 +26,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <sys/stat.h>
-
+#include <pthread.h>
 #define max_size 1024
 #define _HEAD_H
 #endif
