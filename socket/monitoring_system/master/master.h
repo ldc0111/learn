@@ -6,13 +6,11 @@
  ************************************************************************/
 
 #ifndef _MASTER_H
-#define cache 10240
-#define BACKLOG 20  
 typedef struct master{
-    int fd_server;
-    int listen_port;
+    int fd_server;//门卫套接字
+    int listen_port;//监听端口
     socklen_t len_addr_client;
-    char *path;
+    char *path;//文件存储路径
     struct sockaddr_in addr_server;
 }MASTER;
 
