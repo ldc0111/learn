@@ -10,7 +10,11 @@ typedef struct master{
     int fd_server;//门卫套接字
     int listen_port;//监听端口
     socklen_t len_addr_client;
+    int client_port;
     char *path;//文件存储路径
+    char *prename;//开始ｉｐ
+    int  start;
+    int finish;
     struct sockaddr_in addr_server;
 }MASTER;
 

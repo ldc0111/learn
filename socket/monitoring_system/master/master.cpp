@@ -75,9 +75,8 @@ int main(){
     MASTER mast;
     init(&mast);
     //printf("%s\n",mast.path);
-    //printf("%d\n",mast.listen_port);
-
-    if(start_listen(&(mast.fd_server), &(mast.addr_server),mast.listen_port) < 0 ){
+    printf("%d\n",mast.listen_port);
+    if(start_listen(&(mast.fd_server), &(mast.addr_server), mast.listen_port) < 0 ){
         perror("start_listen is error!");
         return  -1;
     }
