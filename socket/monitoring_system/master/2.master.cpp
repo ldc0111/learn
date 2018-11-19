@@ -52,6 +52,20 @@ void insert(linkedlist * l, Node *new_node, int ind){
     l->length += 1;
     return ;
 }
+
+void delete_node(linkedlist *l, Node * node){
+    if(node == NULL) return ;//是空不删
+    Node *current_node = &(l->head);
+    while(current_node != NULL && current_node->next != node){
+        current_node = current_node->next;
+    }
+    Node *delete_node = current_node->next;
+    current_node->next = delete_node->next;
+    free(delete_node);
+    l->length -= 1;
+    return ;
+}
+
 ////////////////////////////////////////////////////////////////
 void* func(void *);
 
@@ -65,18 +79,23 @@ int find_min(linkedlist * l){
     }
     return ind;
 }
+
+/*
 void output(linkedlist * l){
-    for(int i = 0; i < INS; i++){
-        printf("[%d.list:",i);
-        for( Node *node = l[i].head.next; node != NULL; node=node->next){
-            printf(" %d", node->fd_client);
-        }
-        printf("]\n");
-    }
+for(int i = 0; i < INS; i++){
+printf("[%d.list:",i);
+for( Node *node = l[i].head.next; node != NULL; node=node->next){
+printf(" %d", node->fd_client);
 }
-void output2(Node *h){
+printf("]\n");
+}
+}*/
+
+
+void output2(linkedlist *l){
     printf("[");
-    for( Node *node = h->next; node != NULL; node=node->next){
+    printf(" %d ", l->length);
+    for( Node *node = l->head.next; node != NULL; node=node->next){
         printf(" %s", inet_ntoa(node->addr_client.sin_addr));
     }
     printf("]\n");
@@ -93,11 +112,11 @@ int hashfunc(int value){
     return value &0x7fffffff;
 }
 int search(HashTable *h, int value){
-    
+
     int pos = hashfunc(value);
     int ind = pos % hashsize;
     int time = 1;
-    
+
     while(h->flag[ind] != -1 && h->flag[ind] != value){
         ind = (ind + time * time) % hashsize;
         time++;
@@ -194,12 +213,15 @@ char * get_conf_value(const char *pathname, const char *key_name){
 //初始化ｍａｓｔ结构体 开放端口，存储总路径
 void init(MASTER *mast){
     char temp[max_size];
-    //mast->path = get_conf_value("./mast.conf", "PATH");
+    mast->path = get_conf_value("./mast.conf", "PATH");
     mast->listen_port = atoi(get_conf_value("../common/pihealthd.conf", "master_port"));
     mast->client_port = atoi(get_conf_value("../common/pihealthd.conf", "client_port"));
     mast->prename = get_conf_value("../common/pihealthd.conf", "prename");
     mast->start = atoi(get_conf_value("../common/pihealthd.conf", "start"));
     mast->finish = atoi(get_conf_value("../common/pihealthd.conf", "finish"));
+    if(access(mast->path, F_OK) == -1){
+        mkdir(mast->path, 0775);
+    }
     return ;
 }
 int start_listen(int *fd_server, struct sockaddr_in *addr_server, int listen_port){
@@ -235,7 +257,7 @@ int  accept_client(){
         insert(&list[ind],temp, list[ind].length);
     }
     close(temp->fd_client);
-    output2(&list[ind].head);
+    output2(&list[ind]);
     return 0;
 }
 int main(){
@@ -264,10 +286,74 @@ int main(){
     return 0;
 }
 
+int init_client(linkedlist *l, Node *temp){
+    if ((temp->fd_client = socket(AF_INET,SOCK_STREAM,0)) < 0){
+        perror("socket");
+        return -1;
+    }
+    temp->addr_client.sin_family = AF_INET;
+    temp->addr_client.sin_port = htons(mast.client_port);
+    if(connect(temp->fd_client, (struct sockaddr *)&(temp->addr_client), sizeof(temp->len_addr_client)) < 0){
+        //不存在
+        //do something
+        printf("%s is non\n", inet_ntoa(temp->addr_client.sin_addr));
+        int ind = insert_hash(&h, inet_addr(inet_ntoa(temp->addr_client.sin_addr)));
+        if(ind >= 0){
+            h.data[ind] = -1;
+        }
+        delete_node(l, temp);
+        return -1;
+    }
+    return -1;
+}
+
+
+
+
+void recive_data(Node * node){
+    char buffer[max_size];
+    int size = 0;
+    strcpy(buffer, mast.path);
+    strcat(buffer,"/");
+    strcat(buffer, inet_ntoa(node->addr_client.sin_addr));
+    if(access(buffer, F_OK) == -1){//根据ｉｐ创建文件夹
+        mkdir(buffer,0775);
+    }
+    char data[6][max_size];
+    strncpy(data[0], buffer, strlen(buffer));
+    strcat(data[0], "/0.Malevolent_process.log");
+    strncpy(data[1], buffer, strlen(buffer));
+    strcat(data[1], "/1.cpu.log");
+    strncpy(data[2], buffer, strlen(buffer));
+    strcat(data[2], "/2.gesiofsysop.log");
+    strncpy(data[3], buffer, strlen(buffer));
+    strcat(data[3], "/3.yonghu.log");
+    strncpy(data[4], buffer, strlen(buffer));
+    strcat(data[4], "/4.mem.log");
+    strncpy(data[5], buffer, strlen(buffer));
+    strcat(data[5], "/5.disk.log");
+    FILE *f[6];
+    f[0] = fopen(data[0], "a+");
+    f[1] = fopen(data[1], "a+");
+    f[2] = fopen(data[2], "a+");
+    f[3] = fopen(data[3], "a+");
+    f[4] = fopen(data[4], "a+");
+    f[5] = fopen(data[5], "a+");
+
+}
+
+
 void* func(void *arg){
     linkedlist *list = (linkedlist *)arg;
-    for(Node *i = list->head.next; i != NULL ; i = i->next){
-
+    while(1){
+        for(Node *i = list->head.next; i != NULL && (int )i->addr_client.sin_port != 0; i = i->next){
+            if(init_client(list, i) >= 0){
+                //do something
+                recive_data(i);
+            }
+        }
+        output2(list);
+        sleep(1);
     }
     pthread_exit(NULL);
     return NULL;
