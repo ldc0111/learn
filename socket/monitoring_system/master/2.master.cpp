@@ -1,9 +1,9 @@
 /*************************************************************************
-> File Name: 2.master.cpp
-> Author: ldc
-> Mail: litesla
-> Created Time: 2018年11月15日 星期四 18时37分47秒
-************************************************************************/
+  > File Name: 2.master.cpp
+  > Author: ldc
+  > Mail: litesla
+  > Created Time: 2018年11月15日 星期四 18时37分47秒
+ ************************************************************************/
 #include "../common/common.h"
 #include "master.h"
 
@@ -84,15 +84,15 @@ int find_min(linkedlist * l){
 }
 
 /*
-void output(linkedlist * l){
-for(int i = 0; i < INS; i++){
-printf("[%d.list:",i);
-for( Node *node = l[i].head.next; node != NULL; node=node->next){
-printf(" %d", node->fd_client);
-}
-printf("]\n");
-}
-}*/
+   void output(linkedlist * l){
+   for(int i = 0; i < INS; i++){
+   printf("[%d.list:",i);
+   for( Node *node = l[i].head.next; node != NULL; node=node->next){
+   printf(" %d", node->fd_client);
+   }
+   printf("]\n");
+   }
+   }*/
 
 
 void output2(linkedlist *l){
@@ -287,7 +287,7 @@ void mkfile(Node *node){
 //建立链表初始化节点信息
 int  accept_client(){
     Node *temp = getnewnode();
-    if(temp->fd_client = accept(mast.fd_server[0], (struct sockaddr *)(&(temp->addr_client)), &(temp->len_addr_client))  < 0){
+    if((temp->fd_client = accept(mast.fd_server[0], (struct sockaddr *)(&(temp->addr_client)), &(temp->len_addr_client)))  < 0){
         close(temp->fd_client);
         perror("accept :");
         return -1;
@@ -378,26 +378,31 @@ void recive_data(Node * node){
         //根据ｉｐ创建文件夹　防止误删
         mkdir(buffer,0775);
     }
-    memset(buffer,0,sizeof(buffer));
-    size = recv(node->fd_client,buffer,max_size, 0);
-    buffer[size] ='\0';
-    if(size > 0){
-        if(buffer[0] == '0'){
-            f = fopen(node->filename[0], "a+");
-        } else if(buffer[1] == '1'){
-            f = fopen(node->filename[1], "a+");
-        } else if(buffer[2] == '2'){
-            f = fopen(node->filename[2], "a+");
-        } else if(buffer[3] == '3'){
-            f = fopen(node->filename[3], "a+");
-        } else if(buffer[4] == '4'){
-            f = fopen(node->filename[4], "a+");
-        } else if(buffer[5] == '5'){
-            f = fopen(node->filename[5], "a+");
-        }
-        fwrite(buffer + 1, strlen(buffer) - 1, sizeof(buffer[0]), f);
-        fclose(f);
+    printf("socket %d %s\n", node->fd_client, inet_ntoa(node->addr_client.sin_addr));
+    //如果文件没有结束第一个是标识码，如果文件结束第一个是一个英文字符，直接跳出结束套接字就
+    size = recv(node->fd_client, buffer, 1, 0);
+    if(size > 0 && buffer[0] == '0'){
+        f = fopen(node->filename[0], "a+");
+    } else if(size > 0 && buffer[0] == '1'){
+        f = fopen(node->filename[1], "a+");
+    } else if(size > 0 && buffer[0] == '2'){
+        f = fopen(node->filename[2], "a+");
+    } else if(size > 0 && buffer[0] == '3'){
+        f = fopen(node->filename[3], "a+");
+    } else if(size > 0 && buffer[0] == '4'){
+        f = fopen(node->filename[4], "a+");
+    } else if(size > 0 && buffer[0] == '5'){
+        f = fopen(node->filename[5], "a+");
     }
+    printf("",buffer);
+    while(size > 0){
+        memset(buffer,0,sizeof(buffer));
+        size = recv(node->fd_client,buffer,max_size, 0);
+        buffer[size] ='\0';
+        printf("size :%d\n%s\n", size, buffer);
+        fwrite(buffer, strlen(buffer), sizeof(buffer[0]), f);
+    }
+    fclose(f);
     close(node->fd_client);
 }
 
@@ -405,19 +410,18 @@ void recive_data(Node * node){
 void* func(void *arg){
     linkedlist *list = (linkedlist *)arg;
     while(1){
-        output2(list);
+        //output2(list);
         for(Node *i = list->head.next; i != NULL && (int )i->addr_client.sin_port != 0; i = i->next){
-        printf("111 %s\n", inet_ntoa(i->addr_client.sin_addr));
             for(int j = 0; j < scripe; j++){
                 if(init_client(list, i) >= 0){
                     //do something
-                    //recive_data(i);
+                    recive_data(i);
                 }else{
                     break;
                 }
             }
         }
-        sleep(2);
+        //sleep(2);
     }
     pthread_exit(NULL);
     return NULL;

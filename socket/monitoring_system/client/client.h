@@ -16,6 +16,7 @@ typedef struct Node_client{
     socklen_t len_addr_client;//存储ｓｔｒｕｃｔ　ｓｏｃｋａｄｄｒ——ｉｎ的长度
     char *datadir;//文件存储目录
     char *master_host;//ｍａｓｔｅｒ端ｈｏｓｔ
+    char *zippath;//压缩文件名
     struct sockaddr_in dest_addr;//心跳套接字结构体
     struct sockaddr_in listen_addr;//监听套接字结构体
 }Node_client;
