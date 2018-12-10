@@ -1,36 +1,51 @@
 /*************************************************************************
-  > File Name: 2.master.cpp
-  > Author: ldc
-  > Mail: litesla
-  > Created Time: 2018年11月15日 星期四 18时37分47秒
+	> File Name: 3.master.cpp
+	> Author: ldc
+	> Mail: litesla
+	> Created Time: 2018年12月08日 星期六 21时05分52秒
  ************************************************************************/
 #include "../common/common.h"
 #include "master.h"
 
-#define INS 5
-#define min(a,b) ((a) < (b) ? (a) : (b))
-#define hashsize 20000
-#define scripe  6
-//////////////////////////////////////
 
-pthread_mutex_t g_mutex[5];
-//初始化　
-//链表ａｐｉ
+#define INS 5
+//同事链接几个客户端
+#define min(a ,b) ((a) < (b) ? (a) : (b))
+//取最小宏定义
+#define hashsize 20000
+//哈希表大小
+#define scripe 6
+//脚本数量
+
+
+void* func(void *); 
+//一
+//结构定义全局变量声明，对应结构体操作函数
+pthread_mutex_t g_mutex[INS];
+//子线程熟练
+
+//1,链表节点
 typedef struct Node{
-    int fd_client;//用来创建客户给客户端发送信息的端套接字
-    struct sockaddr_in addr_client;//保存客户端信息
-    socklen_t len_addr_client;//保存addr_client 长度
+    int fd_client;
+    //用来创建master端给客户端发送信息的套接字
+    struct sockaddr_in addr_client;
+    //保存客户端信息
+    socklen_t len_addr_client;
+    //标记addr——client长度
     char filename[scripe][max_size];
+    //脚本的名字
     struct Node *next;
+    //指向下一个节点
 }Node;
 typedef struct linkedlist{
     Node head;
+    //虚拟节点
     int length;
+    //链表长度
     int index;
 }linkedlist;
 
-
-
+//链表初始化
 void init_linkedlist(linkedlist *p, int ind) {
     p->index = ind;
     p->head.next = NULL;
@@ -38,17 +53,19 @@ void init_linkedlist(linkedlist *p, int ind) {
     return ;
 }
 
-Node * getnewnode(){
+//申请链表节点
+Node *get_new_node() {
     Node *p = (Node *)calloc(sizeof(Node), 1);
     p->len_addr_client = sizeof(struct sockaddr_in);
     return p;
 }
 
-void insert(linkedlist * l, Node *new_node, int ind){
+//在链表某个位置插入一个节点
+void insert_list(linkedlist *l, Node *new_node, int ind) {
     Node *p = &(l->head);
     while (ind--) {
-        p = p->next;
-        if(p == NULL) return ;
+        p->next;
+        if (p == NULL) return ;
     }
     new_node->next = p->next;
     p->next = new_node;
@@ -56,10 +73,11 @@ void insert(linkedlist * l, Node *new_node, int ind){
     return ;
 }
 
-void delete_node(linkedlist *l, Node * node){
-    if(node == NULL) return ;//是空不删
+//删除链表节点
+void delete_node(linkedlist *l, Node *node) {
+    if (node == NULL) return ;
     Node *current_node = &(l->head);
-    while(current_node != NULL && current_node->next != node){
+    while (current_node != NULL && current_node->next != node) {
         current_node = current_node->next;
     }
     Node *delete_node = current_node->next;
@@ -69,123 +87,112 @@ void delete_node(linkedlist *l, Node * node){
     return ;
 }
 
-////////////////////////////////////////////////////////////////
-void* func(void *);
-
-int find_min(linkedlist * l){
+//遍历链表寻找元素最少的那个链表
+int find_min(linkedlist *l) {
     int ret = 0x3f3f3f3f, ind = 0;
-    for(int i = 0; i < INS; i++){
-        if(l[i].length < ret){
+    for (int i = 0; i < INS; i++) {
+        if (l[i].length < ret) {
             ret = l[i].length;
             ind = i;
         }
     }
     return ind;
 }
-
-/*
-   void output(linkedlist * l){
-   for(int i = 0; i < INS; i++){
-   printf("[%d.list:",i);
-   for( Node *node = l[i].head.next; node != NULL; node=node->next){
-   printf(" %d", node->fd_client);
-   }
-   printf("]\n");
-   }
-   }*/
-
-
-void output2(linkedlist *l){
-    printf("[");
-    printf("index:%d length:%d ", l->index, l->length);
-    for( Node *node = l->head.next; node != NULL; node=node->next){
-        printf(" %s", inet_ntoa(node->addr_client.sin_addr));
+void output(linkedlist *l) {
+    printf ("[");
+    printf("index :%d length :%d\n", l->index, l->length);
+    for (Node *node = l->head.next; node != NULL; node = node->next) {
+        printf("%s ", inet_ntoa(node->addr_client.sin_addr));
     }
     printf("]\n");
     return ;
-
 }
-//////////////////////////////////////////////////////////////////////////
+
+//2hash结构
+//hash结构定义
 typedef struct HashTable{
-    int  data[hashsize];
-    int  flag[hashsize]; 
+    int data[hashsize];
+    int flag[hashsize];
 }HashTable;
 
-int hashfunc(int value){
+//hash函数
+int hashfunc(int value) {
     return value &0x7fffffff;
 }
-int search(HashTable *h, int value){
 
+//2次探测法
+int search(HashTable *h, int value) {
     int pos = hashfunc(value);
     int ind = pos % hashsize;
     int time = 1;
-
-    while(h->flag[ind] != -1 && h->flag[ind] != value){
+    while (h->flag[ind] != -1 && h->flag[ind] != value) {
         ind = (ind + time * time) % hashsize;
         time++;
     }
-    if(h->flag[ind] == value && h->data[ind] == 1) {
-        return 1;//插入过
-    }else if(h->flag[ind] == value && h->data[ind] == -1){
-        return 0;//没插入过
+    if (h->flag[ind] == value && h->data[ind] == 1) {
+        //插入过
+        return 1;
+    } else if (h->flag[ind] == value && h->data[ind] == -1){
+        //没插入过
+        return 0;
     }
-    //不存在
+    //不存在,无法插入
     return -1;
 }
 
-int insert_hash(HashTable *h, int value){
+//插入hash
+int insert_hash(HashTable * h, int value) {
     int pos = hashfunc(value);
     int ind = pos % hashsize;
     int time = 1;
-    while(h->flag[ind] != -1 && h->flag[ind] != value){
-        ind = (ind + time * time ) % hashsize;
+    while (h->flag[ind] != -1 && h->flag[ind] != value) {
+        ind = (ind + time * time) % hashsize;
         time++;
     }
-    if(h->flag[ind] == value){
+    if (h->flag[ind] == value) {
         h->data[ind] = 1;
         return ind;
     }
     return -1;
 }
-void insert_flag(HashTable *h, int value){
+
+//hash初始化flag
+void insert_flag(HashTable *h, int value) {
     int pos = hashfunc(value);
     int ind = pos % hashsize;
     int time = 1;
-    while(h->flag[ind] != -1){
-        ind = (ind + time * time ) % hashsize;
+    while (h->flag[ind] != -1) {
+        ind = (ind + time * time) % hashsize;
         time++;
     }
     h->flag[ind] = value;
     return ;
 }
 
-void init_hash(HashTable *h, MASTER * mast){
-    memset(h,-1,sizeof(HashTable));
+//初始化hash 
+void init_hash(HashTable * h, MASTER * mast) {
+   memset(h, -1, sizeof(HashTable));
     char buffer[max_size];
     memset(buffer, 0, sizeof(buffer));
-    strcpy(buffer, mast->prename);
-    strcat(buffer, ".");
+    strcpy(buffer, mast->prename);//192.168.1.
     int len = strlen(buffer);
-    //printf("%d %d\n",mast->start, mast->finish);
-    for(int i = mast->start; i <= mast->finish; i++){
+    for (int i = mast->start; i <= mast->finish; i++) {
         sprintf(buffer + len, "%d", i);
-        //printf("%s\n",buffer);
-        insert_flag(h,inet_addr(buffer));
+        insert_flag(h, inet_addr(buffer));
     }
     return ;
 }
 
-/////////////////////////////////////////////////////////////////////
+//定义结构体全局变量和master变量
 MASTER mast;
 
 linkedlist list[INS];
 
 HashTable h;
 
-///////////////////////////////////////////////////////
-//初始化ｓｏｃｋｅｔ
-//读取配置文件，读取一个健值，结果在ｖａｌｕｅ数组中
-char * get_conf_value(const char *pathname, const char *key_name){
+//二，初始化功能
+//读取配置文件，读取一个键值，结果在保存在value中,且函数内部申请空间
+char *get_conf_value(const char *pathname, const char *key_name) {
     char *line;
     size_t len = 0;
     ssize_t read;
@@ -193,12 +200,12 @@ char * get_conf_value(const char *pathname, const char *key_name){
     FILE *fp = NULL;
     fp = fopen(pathname, "r");
     if (fp == NULL) {
+        printf ("%d",__LINE__);
         perror("fopen:");
         return NULL;
     }
 
     while ((read = getline(&line,&len,fp)) > 0) {
-        //printf("%s", line);
         char *ptr = strstr(line,key_name);
         if (ptr == NULL) continue;
         ptr += strlen(key_name);
@@ -210,11 +217,15 @@ char * get_conf_value(const char *pathname, const char *key_name){
     }  
     //printf("strlen: %d, %s",strlen(value), value);
     //printf("------");
+    if (value == NULL) {
+        printf("%d %s is node",__LINE__, key_name);
+        perror("value :");
+    }
     return value;
 }
 
-//初始化ｍａｓｔ结构体 开放端口，存储总路径
-void init(MASTER *mast){
+//初始化ｍａｓｔ结构体 开放的端口，存储总路径，允许的ip范围，线程，等
+void init_master(MASTER *mast) {
     char temp[max_size];
     pthread_mutex_init(&g_mutex[0], NULL);
     pthread_mutex_init(&g_mutex[1], NULL);
@@ -234,13 +245,16 @@ void init(MASTER *mast){
     }
     return ;
 }
-void init_list(linkedlist *list){
-    for(int i = 0; i < INS; i++){
+
+//初始化链表数组
+void init_list(linkedlist *list) {
+    for (int i = 0; i < INS; i++) {
         init_linkedlist(&list[i], i);
     }
 }
 
-int start_listen(int *fd_server, struct sockaddr_in *addr_server, int listen_port){
+//打开监听端口,等待客户端心跳心跳
+int start_listen(int *fd_server, struct sockaddr_in *addr_server, int listen_port) {
     addr_server->sin_family = AF_INET;
     addr_server->sin_port = htons(listen_port);
     addr_server->sin_addr.s_addr = htonl(INADDR_ANY);
@@ -259,7 +273,9 @@ int start_listen(int *fd_server, struct sockaddr_in *addr_server, int listen_por
     }   
 }
 
-void mkfile(Node *node){    
+
+//初始化链表节点存储的脚本的信息文件名
+void mkfile(Node *node) {    
     char buffer[max_size];
     strcpy(buffer, mast.path);
     strcat(buffer,"/");
@@ -282,11 +298,9 @@ void mkfile(Node *node){
     strcat(node->filename[5], "/5.disk.log");
 
 }
-
-
-//建立链表初始化节点信息
+//建立链表初始化节点信息,并将新的节点存储入最短的那个链表中,如果哈希表中存在这个值，将不在插入
 int  accept_client(){
-    Node *temp = getnewnode();
+    Node *temp = get_new_node();
     if((temp->fd_client = accept(mast.fd_server[0], (struct sockaddr *)(&(temp->addr_client)), &(temp->len_addr_client)))  < 0){
         close(temp->fd_client);
         perror("accept :");
@@ -298,61 +312,74 @@ int  accept_client(){
     if(search(&h, inet_addr(inet_ntoa(temp->addr_client.sin_addr))) == 0){
         pthread_mutex_lock(&g_mutex[ind]);
         insert_hash(&h, inet_addr(inet_ntoa(temp->addr_client.sin_addr)));
-        insert(&list[ind],temp, list[ind].length);
+        insert_list(&list[ind],temp, list[ind].length);
         pthread_mutex_unlock(&g_mutex[ind]);
     }
     mkfile(temp);
 
-
-    //output2(&list[ind]);
     return 0;
 }
-int main(){
-    memset(&list, 0, sizeof(list));
-    pthread_t t[INS];
-    init(&mast);
+
+//总初始化函数
+void init(){
+    init_master(&mast);
     init_hash(&h, &mast);
     init_list(list);
-    for(int i = 0; i < INS; i++){
-        if(pthread_create(&(t[i]), NULL, func, (void *)&list[i]) == -1){
+    return ;
+}
+
+//三，主函数
+int main() {
+    pthread_t t[INS];
+    //线程标记变量
+
+    init();
+    //调用各种初始化函数
+    
+    for (int i = 0; i < INS; i++) {
+        if (pthread_create(&t[i], NULL, func, (void *)&list[i]) == -1) {
+            printf("%d", __LINE__);
             perror("pthread_create:");
             return -1;
         }
     }
-    for(int i = 0; i < pot; i++){
-        if(start_listen(&(mast.fd_server[i]), &(mast.addr_server[i]), mast.listen_port[i]) < 0 ){
-            perror("start_listen is error!");
-            return  -1;
+    //调用各种初始化函数线程去主动链接客户端，并接收信息
+
+    for (int i = 0; i < pot; i++) {
+        if (start_listen(&mast.fd_server[i], &(mast.addr_server[i]), mast.listen_port[i]) < 0) {
+            perror("start_listen is ");
         }
     }
-    while(1){
+    //监听需要接听的端口
+
+    while (1) {
         accept_client();
+        //主线程，等待连接
     }
     pthread_join(t[0], NULL);
     pthread_join(t[1], NULL);
     pthread_join(t[2], NULL);
     pthread_join(t[3], NULL);
     pthread_join(t[4], NULL);
+    //等待线程返回
     return 0;
 }
-//尝试链接，不存在删除存在，不删除
-int init_client(linkedlist *l, Node *temp){
-    if ((temp->fd_client = socket(AF_INET,SOCK_STREAM,0)) < 0){
+
+//尝试链接　并删除不在线的节点
+int init_client(linkedlist *l, Node *temp) {
+    if ((temp->fd_client = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
         perror("socket");
         return -1;
     }
     temp->addr_client.sin_family = AF_INET;
     temp->addr_client.sin_port = htons(mast.client_port);
-
-    if(connect(temp->fd_client, (struct sockaddr *)&(temp->addr_client), sizeof(temp->addr_client)) < 0){
-        //不存在
-        //do something
+    
+    if (connect(temp->fd_client, (struct sockaddr *)&(temp->addr_client), sizeof(temp->addr_client)) < 0) {
+        //不存在　进行删除
         printf("%s %d is non\n", inet_ntoa(temp->addr_client.sin_addr), temp->len_addr_client);
         pthread_mutex_lock(&g_mutex[l->index]);
-        int ind = insert_hash(&h, inet_addr(inet_ntoa(temp->addr_client.sin_addr)));
-        if(ind >= 0){
-            h.data[ind] = -1;
-        }
+        int ind = insert_hash(&h, inet_addr(inet_ntoa(temp->addr_client.sin_addr)));//返回哈希下标
+        if (ind >= 0) h.data[ind] = -1;//删除哈希
         close(temp->fd_client);
         delete_node(l, temp);
         pthread_mutex_unlock(&g_mutex[l->index]);
@@ -361,26 +388,27 @@ int init_client(linkedlist *l, Node *temp){
     return 0;
 }
 
-void recive_data(Node * node){
-    if(access(mast.path,0775) == -1){
+//接受客户端数据
+void recive_data(Node *node) {
+    if (access(mast.path, 0775) == -1) {
+        mkdir(mast.path, 0775);
         //防止误删
-        mkdir(mast.path,0775);
     }
     char buffer[max_size + 5];
     int size = 0;
     FILE *f;
-    int recode;
-    int server_tfd;
     strcpy(buffer, mast.path);
-    strcat(buffer,"/");
+    strcat(buffer, "/");
     strcat(buffer, inet_ntoa(node->addr_client.sin_addr));
-    if(access(buffer, F_OK) == -1){
-        //根据ｉｐ创建文件夹　防止误删
-        mkdir(buffer,0775);
+    //获取文件名
+    if (access(buffer, F_OK) == -1) {
+        mkdir(buffer, 0775);
+        //根据ｉｐ创建文件夹
     }
-    printf("socket %d %s\n", node->fd_client, inet_ntoa(node->addr_client.sin_addr));
-    //如果文件没有结束第一个是标识码，如果文件结束第一个是一个英文字符，直接跳出结束套接字就
+
+    //每次链接第一个总是标志位，在相应的套接字缓冲区
     size = recv(node->fd_client, buffer, 1, 0);
+    //从套接字缓冲区接收一个字
     if(size > 0 && buffer[0] == '0'){
         f = fopen(node->filename[0], "a+");
     } else if(size > 0 && buffer[0] == '1'){
@@ -394,25 +422,27 @@ void recive_data(Node * node){
     } else if(size > 0 && buffer[0] == '5'){
         f = fopen(node->filename[5], "a+");
     }
-    printf("",buffer);
-    while(size > 0){
+    //根据标志位打开文件
+
+    while (size > 0) {
         memset(buffer,0,sizeof(buffer));
         size = recv(node->fd_client,buffer,max_size, 0);
         buffer[size] ='\0';
-        printf("size :%d\n%s\n", size, buffer);
         fwrite(buffer, strlen(buffer), sizeof(buffer[0]), f);
+        //接受相应缓存区的东西并存贮在文件中
     }
     fclose(f);
     close(node->fd_client);
+    //关闭文件关闭套接字
+    return ;
 }
 
-
-void* func(void *arg){
+void *func(void *arg) {
     linkedlist *list = (linkedlist *)arg;
     while(1){
-        //output2(list);
         for(Node *i = list->head.next; i != NULL && (int )i->addr_client.sin_port != 0; i = i->next){
             for(int j = 0; j < scripe; j++){
+                //接受６个脚本的信息，创建６次套接字
                 if(init_client(list, i) >= 0){
                     //do something
                     recive_data(i);
@@ -423,6 +453,8 @@ void* func(void *arg){
         }
         sleep(2);
     }
-    pthread_exit(NULL);
+    //循环遍历链表，每个节点代表一个客户端，每个客户端接受６次信息，依次是６个脚本的信息
+    //遍历结束会睡眠几秒，等待客户端有足够的数据
+    pthread_exit(NULL);    
     return NULL;
 }
