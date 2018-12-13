@@ -19,6 +19,7 @@
 
 
 void* func(void *); 
+void *func2(void *);
 //一
 //结构定义全局变量声明，对应结构体操作函数
 pthread_mutex_t g_mutex[INS];
@@ -64,7 +65,7 @@ Node *get_new_node() {
 void insert_list(linkedlist *l, Node *new_node, int ind) {
     Node *p = &(l->head);
     while (ind--) {
-        p->next;
+        p = p->next;
         if (p == NULL) return ;
     }
     new_node->next = p->next;
@@ -174,7 +175,8 @@ void init_hash(HashTable * h, MASTER * mast) {
    memset(h, -1, sizeof(HashTable));
     char buffer[max_size];
     memset(buffer, 0, sizeof(buffer));
-    strcpy(buffer, mast->prename);//192.168.1.
+    strcpy(buffer, mast->prename);//192.168.1
+    strcat(buffer, ".");
     int len = strlen(buffer);
     for (int i = mast->start; i <= mast->finish; i++) {
         sprintf(buffer + len, "%d", i);
@@ -253,7 +255,7 @@ void init_list(linkedlist *list) {
     }
 }
 
-//打开监听端口,等待客户端心跳心跳
+//打开监听端口,等待客户端心跳或者传送信息
 int start_listen(int *fd_server, struct sockaddr_in *addr_server, int listen_port) {
     addr_server->sin_family = AF_INET;
     addr_server->sin_port = htons(listen_port);
@@ -265,6 +267,7 @@ int start_listen(int *fd_server, struct sockaddr_in *addr_server, int listen_por
     }
     if (bind(*fd_server, (struct sockaddr *)addr_server, sizeof(*addr_server)) < 0){
         perror("bind: ");
+        exit(1);
         return -1;
     }
     if (listen(*fd_server, BACKLOG) < 0) {
@@ -308,7 +311,8 @@ int  accept_client(){
     }
     close(temp->fd_client);
     int ind = find_min(list);
-    printf("connect %s\n", inet_ntoa(temp->addr_client.sin_addr));
+    printf("heart %s\n", inet_ntoa(temp->addr_client.sin_addr));
+
     if(search(&h, inet_addr(inet_ntoa(temp->addr_client.sin_addr))) == 0){
         pthread_mutex_lock(&g_mutex[ind]);
         insert_hash(&h, inet_addr(inet_ntoa(temp->addr_client.sin_addr)));
@@ -330,7 +334,7 @@ void init(){
 
 //三，主函数
 int main() {
-    pthread_t t[INS];
+    pthread_t t[INS + 1];
     //线程标记变量
 
     init();
@@ -348,9 +352,16 @@ int main() {
     for (int i = 0; i < pot; i++) {
         if (start_listen(&mast.fd_server[i], &(mast.addr_server[i]), mast.listen_port[i]) < 0) {
             perror("start_listen is ");
+            exit(1);
         }
     }
     //监听需要接听的端口
+    if (pthread_create(&t[INS], NULL, func2,(void *)0) == -1) {
+        printf("%d", __LINE__);
+        perror("pthread_create:");
+        return -1;
+    }
+    //接收报警信息的线程
 
     while (1) {
         accept_client();
@@ -405,9 +416,9 @@ void recive_data(Node *node) {
         mkdir(buffer, 0775);
         //根据ｉｐ创建文件夹
     }
-
     //每次链接第一个总是标志位，在相应的套接字缓冲区
     size = recv(node->fd_client, buffer, 1, 0);
+    printf("size %d %c\n", size, buffer[0]);
     //从套接字缓冲区接收一个字
     if(size > 0 && buffer[0] == '0'){
         f = fopen(node->filename[0], "a+");
@@ -421,9 +432,11 @@ void recive_data(Node *node) {
         f = fopen(node->filename[4], "a+");
     } else if(size > 0 && buffer[0] == '5'){
         f = fopen(node->filename[5], "a+");
+    }else {
+        //有链接但是没数据的化
+        size = -10;
     }
     //根据标志位打开文件
-
     while (size > 0) {
         memset(buffer,0,sizeof(buffer));
         size = recv(node->fd_client,buffer,max_size, 0);
@@ -431,7 +444,7 @@ void recive_data(Node *node) {
         fwrite(buffer, strlen(buffer), sizeof(buffer[0]), f);
         //接受相应缓存区的东西并存贮在文件中
     }
-    fclose(f);
+    size != -10 && fclose(f);
     close(node->fd_client);
     //关闭文件关闭套接字
     return ;
@@ -440,8 +453,12 @@ void recive_data(Node *node) {
 void *func(void *arg) {
     linkedlist *list = (linkedlist *)arg;
     while(1){
+        //output(list);
+        
         for(Node *i = list->head.next; i != NULL && (int )i->addr_client.sin_port != 0; i = i->next){
+            //printf("%s is connect\n", inet_ntoa(i->addr_client.sin_addr));
             for(int j = 0; j < scripe; j++){
+                printf("%s is connect\n", inet_ntoa(i->addr_client.sin_addr));
                 //接受６个脚本的信息，创建６次套接字
                 if(init_client(list, i) >= 0){
                     //do something
@@ -458,3 +475,26 @@ void *func(void *arg) {
     pthread_exit(NULL);    
     return NULL;
 }
+
+//报警信息事实传递
+void *func2(void *arg){
+    while (1) {
+        Node *temp = get_new_node();
+        if((temp->fd_client = accept(mast.fd_server[1], (struct sockaddr *)(&(temp->addr_client)), &(temp->len_addr_client)))  < 0){
+            close(temp->fd_client);
+            perror("accept :");
+            return NULL;
+        }
+        char buffer[max_size + 5];
+        int size = 0;
+        size = recv(temp->fd_client, buffer, max_size, 0);
+        if (size > 0) {
+            printf("%s: %s", inet_ntoa(temp->addr_client.sin_addr), buffer);
+        }
+        close(temp->fd_client);
+    }
+    return NULL;
+}
+
+
+

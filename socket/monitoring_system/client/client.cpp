@@ -242,6 +242,7 @@ void transport(int fd_temp, int index){
         return ;
     }
     //发送标示码
+    printf("%s", buff);
     send(fd_temp, buff, strlen(buff), 0);
     //发送文件
     while(!feof(fl)){

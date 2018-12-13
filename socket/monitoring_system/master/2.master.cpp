@@ -394,7 +394,6 @@ void recive_data(Node * node){
     } else if(size > 0 && buffer[0] == '5'){
         f = fopen(node->filename[5], "a+");
     }
-    printf("",buffer);
     while(size > 0){
         memset(buffer,0,sizeof(buffer));
         size = recv(node->fd_client,buffer,max_size, 0);

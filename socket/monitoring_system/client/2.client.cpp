@@ -54,6 +54,7 @@ char * get_conf_value(const char *pathname, const char *key_name){
         int tempvalue = strlen(value);
         value[tempvalue] = '\0';
     }
+    fclose(fp);
     return value;
 }
 
@@ -62,9 +63,11 @@ int init(Node_client *client){
     client->master_port = atoi(get_conf_value("../common/pihealthd.conf", "master_port"));
     client->master_host = get_conf_value("../common/pihealthd.conf", "master_host");
     client->client_port = atoi(get_conf_value("../common/pihealthd.conf", "client_port"));
+    client->urgent_port = atoi(get_conf_value("../common/pihealthd.conf", "master_port2"));
     client->datadir = get_conf_value("./client.conf","datadir");
     client->zippath = get_conf_value("./client.conf","zippath");
     client->len_addr_client = sizeof(struct sockaddr_in);
+    return 0;
 }
 
 //心跳函数
@@ -113,7 +116,7 @@ int init_scripe(scripe *sc){
     sc[3].path = get_conf_value("./client.conf", sc[3].name);
     sc[3].ti = atoi(get_conf_value("./client.conf", "time3"));
     sc[3].mepath = get_conf_value("./client.conf", "mepath3");
-    sc[2].index = 2;
+    sc[3].index = 3;
 
     sc[4].name = get_conf_value("./client.conf", "name4");
     sc[4].path = get_conf_value("./client.conf", sc[4].name);
@@ -192,11 +195,37 @@ int main(){
     pthread_join(t[7], NULL);
     return 0;
 }
+//主动链接ｍａｓｔｅｒ端如果有报警信息就发送信息
+void urgentfunc(char * buff, int index) {
+    if (index > 2) return ;
+    //没有恶意程序
+    if (index != 0 && strstr(buff, "warning") == NULL) return ;
+    //没有报警信息
+    if (index == 0 && strlen(buff) == 0) return ;
+    int fd_urgent;
+    struct sockaddr_in urgent;
+    if ((fd_urgent = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+        printf("%d", __LINE__);
+        printf("socket");
+        return ;
+    }
+    urgent.sin_family = AF_INET;
+    urgent.sin_port = htons(client.urgent_port);
+    urgent.sin_addr.s_addr = inet_addr(client.master_host);
+    if (connect(fd_urgent, (struct sockaddr *)&(urgent), sizeof(urgent)) < 0) {
+        //链接失败结束
+        return ;
+    }
+    send(fd_urgent, buff, strlen(buff), 0);
+    close(fd_urgent);
+
+}
 
 //运行脚本存储信息
 void* func1(void *arg){
+    scripe *te=(scripe *)arg;
     while(1){
-        scripe *te=(scripe *)arg;
+        pthread_mutex_lock(&g_mutex[te->index]);
         FILE *fp=popen(te->path, "r");
         char buff[max_size];
         memset(buff, 0, sizeof(buff));
@@ -214,10 +243,9 @@ void* func1(void *arg){
         fread(buff,sizeof(char),max_size,fp);
         //判断信息里面是否有警告
         //写一个函数
-
+        urgentfunc(buff, te->index);
 
         //写入文件一次
-        pthread_mutex_lock(&g_mutex[te->index]);
         fwrite(buff, strlen(buff), sizeof(buff[0]),fl);
         pthread_mutex_unlock(&g_mutex[te->index]);
         pclose(fp);
@@ -250,6 +278,7 @@ void transport(int fd_temp, int index){
         return ;
     }
     //发送标示码
+    printf("%s\n",buff);
     send(fd_temp, buff, strlen(buff), 0);
     //发送文件
     while(!feof(fl)){
@@ -258,8 +287,9 @@ void transport(int fd_temp, int index){
         send(fd_temp, buff, strlen(buff), 0);
     }
     //删除文件
+    //关闭文件描述符号
+    fclose(fl);
     char command[50];
-    //对６个文件加上互斥锁，放置信息写入
     sprintf(command, "rm %s", pathname);
     system(command);
 }
