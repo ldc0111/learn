@@ -31,13 +31,15 @@ int  listenn(int *fd_server, struct sockaddr_in *addr_server,int listen_port){
 
 int recvfile(int fd_server,struct sockaddr_in addr_client, socklen_t len_addr_client){
     int fd_client;
+    printf("fd_server %d\n",fd_server);
     if ((fd_client = accept(fd_server,(struct sockaddr *)&addr_client, &len_addr_client)) < 0){
         perror("accept:");
         return -1;
-    }
-
+    } 
+    printf("fd_client %d\n", fd_client);
     if (!fork()) {
         char buffer[max_size] = PATH;
+        //printf("%s\n",inet_ntoa(addr_client.sin_addr));
         strcat(buffer,inet_ntoa(addr_client.sin_addr));
         mkdir(buffer,0775);
         int size = 0;

@@ -7,7 +7,8 @@
 
 #include "head.h"
 
-void transport(char * ch,int fd_client){
+void transport(const char * ch,int fd_client){
+    printf("fd_client %d\n", fd_client);
     FILE *fp = popen(ch,"r");
     char buffer[max_size];
 
@@ -19,7 +20,7 @@ void transport(char * ch,int fd_client){
         memset(buffer + 1, 0,sizeof(buffer) - 1);
         fread(buffer + 1,sizeof(char), max_size,fp);
         send(fd_client,buffer,max_size,0);
-        //printf("%s", buffer);
+        printf("%s", buffer);
     }
     pclose(fp);
 }

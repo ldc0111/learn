@@ -15,7 +15,7 @@ int BF(const char *text, const char *pattern,int *p_cnt){
     int len2 = strlen(pattern);
     for(int i = 0; i < len1 - len2 + 1; i++, cnt++){
         int flag = 1;
-        for(int j = 0; pattern[j]; j++,cnt++){
+        for(int j = 0; pattern[j]; j++,cnt++)
             if(text[i + j] == pattern[j]) continue;
             flag = 0;
         }
