@@ -1,0 +1,13 @@
+[Unit]
+Description=pihealthd_tesla-1.0
+After=syslog.target network.target remote-fs.target nss-lookup.target
+
+
+[Service]
+Type=forking
+ExecStart=/usr/bin/health_tesla/pihealthd_tesla_m.start.sh
+ExecStot=/usr/bin/health_tesla/pihealthd_tesla_m.stop.sh
+
+
+[Install]
+WantedBy=multi-user.target

@@ -54,7 +54,6 @@ char * get_conf_value(const char *pathname, const char *key_name){
         int tempvalue = strlen(value);
         value[tempvalue] = '\0';
     }
-    //printf("%s\n",value);
     fclose(fp);
     return value;
 }
@@ -81,7 +80,6 @@ int heart(Node_client * client){
     client->dest_addr.sin_family = AF_INET;
     client->dest_addr.sin_port = htons(client->master_port);
     client->dest_addr.sin_addr.s_addr = inet_addr(client->master_host);
-    //printf("%s is connect\n", client->master_host);
     if (connect(client->fd_client, (struct sockaddr *)&(client->dest_addr),sizeof(client->dest_addr)) < 0){
     printf("%d",__LINE__);
     perror("connect");
