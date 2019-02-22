@@ -1,0 +1,7 @@
+digraph g{
+    a[color = black];
+    b[color = red];
+    c[color = red];
+    a -> b;
+    a -> c;
+}

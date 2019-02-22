@@ -1,4 +1,10 @@
 /*************************************************************************
+	> File Name: 2.rbttree.cpp
+	> Author: ldc
+	> Mail: litesla
+	> Created Time: 2019年02月20日 星期三 22时28分49秒
+ ************************************************************************/
+/*************************************************************************
 > File Name: rbt.cpp
 > Author: ldc
 > Mail: litesla
@@ -46,7 +52,7 @@ void clear(RBTNode *node) {
 }
 
 int has_red_child(RBTNode *root) {
-    return root->lchild->color == RED || root->rchild->color == RED;
+    return (root->lchild->color == RED || root->rchild->color == RED);
 
 }
 
@@ -76,8 +82,8 @@ RBTNode *insert_maintain(RBTNode *root) {
         if (root->rchild->lchild->color == RED) {//如果是ＲＬ型
             root->rchild = right_rotate(root->rchild);//进行小右旋
         }
-        root = left_rotate(root);/大左旋
-    }else {
+        root = left_rotate(root);//大左旋
+    } else {
         return root;
     }
     root->color = RED;//红色上顶
@@ -107,53 +113,41 @@ RBTNode *predecessor(RBTNode *root) {//寻找前驱节点
     return temp;
 }
 RBTNode *erase_maintain(RBTNode *root) {
-    if (root->lchild->color != DOUBLE_BLACK && root->rchild->color != DOUBLE_BLACK) return root;
-    if ((root->lchild->color == DOUBLE_BLACK && !has_red_child(root->rchild))||
-        (root->rchild->color == DOUBLE_BLACK && !has_red_child(root->lchild))
-       ) {
+    if (root->lchild->color != DOUBLE_BLACK && root->rchild->color != DOUBLE_BLACK) return root;//没有双黑，不调整
+    #define UNBALANCE(a,b) (root->a->color == DOUBLE_BLACK && root->b->color == BLACK && !has_red_child(root->b))
+    //如果有一个孩子是双黑，且另一个孩子是黑色且，他的孩子没有红色，则只需要变色不需要调整
+    if (UNBALANCE(lchild, rchild)|| UNBALANCE(rchild, lchild)) {
            root->color += 1;
            root->rchild->color -= 1;
            root->lchild->color -= 1;
            return root;
 
        }
-    if (root->lchild->color == DOUBLE_BLACK) {
-        if (root->rchild->color == RED) {
-            root = left_rotate(root);
+    #undef UNBALANCE
+    if (root->lchild->color == DOUBLE_BLACK) {//如果左孩子是双黑，
+        if (root->rchild->color == RED) {//且右孩子是红色，将兄弟节点编程黑色
+            root = left_rotate(root);//左旋
             root->color = BLACK;
             root->lchild->color = RED;
-            return erase_maintain(root->lchild);
+            root->lchild = erase_maintain(root->lchild);
+            return root;
         }
-        /*
-        if (!has_red_child(root->rchild)) {
-        root->color += 1;
-        root->lchild->color -= 1;
-        root->rchild->color -= 1;
-        return root;
-        }*/
-        root->lchild->color = BLACK;
-        if (root->rchild->rchild->color != RED) {
+        root->lchild->color = BLACK;//减去一重黑
+        if (root->rchild->rchild->color != RED) {//是ＬＲ型，上面判断过了如果兄弟是黑的带两个黑的所以这里一定有一个是宏的
             root->rchild = right_rotate(root->rchild);
             root->rchild->color = BLACK;
             root->rchild->rchild->color = RED;
         }
         root = left_rotate(root);
         root->color = root->lchild->color;
-        root->lchild->color = root->rchild->color = BLACK;
     } else {
         if (root->lchild->color == RED) {
             root = right_rotate(root);
             root->color = BLACK;
             root->rchild->color = RED;
-            return erase_maintain(root->rchild);
+            root->rchild = erase_maintain(root->rchild);
+            return root;
         }
-        /*
-        if (!has_red_child(root->lchild)) {
-        root->color += 1;
-        root->rchild->color -= 1;
-        root->lchild->color -= 1;
-        return root;
-        }*/
         root->rchild->color = BLACK;
         if (root->lchild->lchild->color != RED) {
             root->lchild = left_rotate(root->lchild);
@@ -162,12 +156,12 @@ RBTNode *erase_maintain(RBTNode *root) {
         }
         root = right_rotate(root);
         root->color = root->rchild->color;
-        root->rchild->color = root->lchild->color = BLACK;
     }
+    root->rchild->color = root->lchild->color = BLACK;
 return root;
 }
 
-
+//依然是从底部到上部调整
 RBTNode *__erase(RBTNode *root, int key) {
     if (root == NIL) return NIL;
     if (root->key > key) {
@@ -175,20 +169,14 @@ RBTNode *__erase(RBTNode *root, int key) {
     } else if (root->key < key) {
         root->rchild = __erase(root->rchild,key);
     } else {
-        /*
-        if (root->lchild == NIL && root->rchild == NIL) {
-        NIL->color += root->color;
-        free(root);
-        return NIL;
-    } else */
         if (root->lchild == NIL || root->rchild == NIL) {
             //0//1
-            RBTNode *temp = (root->lchild == NIL ? root->rchild : root->lchild);
+            RBTNode *temp = (root->lchild == NIL ? root->rchild : root->lchild);//等于非空的那个或者ＮＩＬ节点
             temp->color += root->color;
             free(root);
             return temp;
         } else {
-            RBTNode *temp = predecessor(root);
+            RBTNode *temp = predecessor(root);//有做孩子和右孩子
             root->key = temp->key;
             root->lchild = __erase(root->lchild,temp->key);
         }
@@ -198,16 +186,16 @@ RBTNode *__erase(RBTNode *root, int key) {
 
 RBTNode *erase(RBTNode *root, int key) {
     root = __erase(root,key);
-    root->color = BLACK;
+    root->color = BLACK;//有可能变红
     return root;
 }
 
 
 void output(RBTNode *root) {
     if (root == NIL) return ;
-    printf("(%d %d %d)",root->key, root->lchild->key, root->rchild->key);
-    output(root->rchild);
+    printf("(%d %d %d) = %d\n",root->key, root->lchild->key, root->rchild->key,root->color);
     output(root->lchild);
+    output(root->rchild);
 }
 
 
@@ -234,3 +222,4 @@ int main() {
     }
     return 0;
 }
+
