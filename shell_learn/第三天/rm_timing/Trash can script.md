@@ -1,16 +1,13 @@
-### 1,编写垃圾桶文件
+### 第一步，编写垃圾桶文件
 
-借鉴网址https://blog.csdn.net/newbietao/article/details/79833655
+**初学者注意修改本案例中的所有路径名**
 
-创建一个垃圾桶目录设置垃圾桶权限
-
-`chmod 755 trash`
+先创建一个创建一个垃圾桶目录`mkdir trash`并且设置垃圾桶权限`chmod 755 trash`
 
 
 
 ````shell
 #!/bin/bash
-
 
 dir=`date +"%y_%m_%d"`
 #echo $dir
@@ -85,7 +82,7 @@ fi
 
 
 
-###2,设置变量别名
+### 第二步,设置变量别名
 
 将脚本放到指定目录下
 
@@ -99,18 +96,18 @@ fi
 
 *注意：bashrc是一个隐藏文件*
 
-###３编写定时文件
+### 第三步，编写定时删除文件
 
 ````shell
 #!/bin/bash
 #find 对应目录 -mtime +天数 -name "文件名" -exec rm -rf {} \;
 find /home/lidecao/trash -mtime +7 -name "*" -exec rm -f {} \;
-
+#删除垃圾桶中大于时间７天的文件
 ````
 
 
 
-###４设置定时任务
+### 第四步,设置定时任务
 
 
 
@@ -126,7 +123,9 @@ find /home/lidecao/trash -mtime +7 -name "*" -exec rm -f {} \;
 
 ````
 
+### 参考和引用
 
+借鉴网址https://blog.csdn.net/newbietao/article/details/79833655
 
 权限解释网址https://blog.csdn.net/slpond/article/details/53282167
 
