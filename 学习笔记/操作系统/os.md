@@ -282,3 +282,24 @@ cpu调度
 
 ｒｏｌｌｂａｃｋ回滚，要影响优先级取制定一系列的策略
 
+
+
+
+
+
+
+
+
+
+
+
+
+### 每一层的协议如下：
+
+- 物理层： RJ45 、 CLOCK 、 IEEE802.3 （中继器，集线器，网关）
+- 数据链路： PPP 、 FR 、 HDLC 、 VLAN 、 MAC （网桥，交换机）
+- 网络层： IP 、 ICMP 、 ARP 、 RARP 、 OSPF 、 IPX 、 RIP 、 IGRP 、 （路由器）
+- 传输层： TCP 、 UDP 、 SPX
+- 会话层： NFS 、 SQL 、 NETBIOS 、 RPC
+- 表示层： JPEG 、 MPEG 、 ASII
+- 应用层： FTP 、 DNS 、 Telnet 、 SMTP 、 HTTP 、 WWW 、 NFS
