@@ -50,6 +50,7 @@ int main(){
         memset(dp[i % 3],0,sizeof(dp[i % 3]));
         add(dp[i % 3], dp[(i - 1) % 3],dp[(i - 2) % 3], n - 2, n - 1);
         //dp[i % 3] = (n - 2) * dp[(i - 1) % 3] + (n - 1) * dp[(i - 2) % 3];
+        //                        不相等　　　　　　　　　　　　　相等
         //cout << dp[i% 3] << endl;
     }
     print(dp[w % 3]);
