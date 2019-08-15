@@ -50,7 +50,25 @@ LinkNode* erase(Linklist l, int ind) {
     return ret.next;
 }
 
-
+LinkNode * linkflip(Linklist l) {
+    if (l == NULL) return l;
+    LinkNode *pre = NULL,*cur = l,*tem = NULL;
+    while(cur!= NULL){
+        tem = cur;
+        cur = cur->next;
+        tem->next = pre;
+        pre = tem;
+    }
+    return pre;
+}
+LinkNode * linkflip2(LinkNode *node) {
+    if (node == NULL || node->next == NULL) return node;
+    LinkNode *ne = node->next;
+    LinkNode * he = linkflip2(ne);
+    node->next = NULL;
+    ne->next = node;
+    return he;
+}
 
 void clear(Linklist head){
     if (head == NULL) return ;
@@ -103,7 +121,10 @@ int main() {
             }break;
         }
     }
-
+    output(l);
+    l = linkflip(l);
+    l = linkflip2(l);
+    output(l);
     clear(l);
     return 0;
 }
