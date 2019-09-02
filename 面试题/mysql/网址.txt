@@ -1,0 +1,8 @@
+https://zhuanlan.zhihu.com/p/23713529
+
+漫谈索引
+https://kb.cnblogs.com/page/45712/
+
+
+数据库索引优缺点
+https://zhidao.baidu.com/question/249705349.html
